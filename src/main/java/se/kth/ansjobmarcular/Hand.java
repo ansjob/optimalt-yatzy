@@ -39,6 +39,10 @@ public class Hand {
 	public int[] getDice() {
 		return dice;
 	}
+	
+	public int getIndex() {
+		return getIndexes.get(this);
+	}
 
     @Override
     public int hashCode() {

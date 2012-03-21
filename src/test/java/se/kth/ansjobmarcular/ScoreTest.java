@@ -1,4 +1,4 @@
-package se.kth.dkand.tests;
+package se.kth.ansjobmarcular;
 
 import static org.junit.Assert.*;
 
