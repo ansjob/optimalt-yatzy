@@ -3,6 +3,7 @@ package se.kth.ansjobmarcular;
 public class Generator {
 	int		a, b, c, d, e;
 
+
 	public void generate() {
 		for (a = 1; a <= 6; a++) {
 			for (b = a; b <= 6; b++) {

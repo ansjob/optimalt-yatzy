@@ -3,9 +3,9 @@ package se.kth.dkand.tests;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import se.kth.ansjobmarcular.Hand;
+import se.kth.ansjobmarcular.Score;
 
-import se.kth.dkand.Hand;
-import se.kth.dkand.Score;
 
 public class ScoreTest {
 
@@ -16,20 +16,20 @@ public class ScoreTest {
 		assertEquals(3, Score.value(new Hand(1, 4, 1, 2, 1), Score.Type.ACES));
 		assertEquals(2, Score.value(new Hand(2, 1, 3, 1, 2), Score.Type.ACES));
 		assertEquals(1, Score.value(new Hand(2, 6, 6, 1, 2), Score.Type.ACES));
-		
+
 		assertEquals(0, Score.value(new Hand(1, 1, 4, 1, 1), Score.Type.TWOS));
 		assertEquals(2, Score.value(new Hand(1, 1, 1, 1, 2), Score.Type.TWOS));
 		assertEquals(4, Score.value(new Hand(1, 2, 3, 2, 1), Score.Type.TWOS));
 		assertEquals(6, Score.value(new Hand(2, 1, 2, 5, 2), Score.Type.TWOS));
 		assertEquals(8, Score.value(new Hand(2, 2, 2, 1, 2), Score.Type.TWOS));
-		
+
 		assertEquals(0, Score.value(new Hand(1, 1, 4, 1, 1), Score.Type.THREES));
 		assertEquals(9, Score.value(new Hand(1, 3, 3, 3, 2), Score.Type.THREES));
 		assertEquals(18, Score.value(new Hand(6, 6, 3, 6, 1), Score.Type.SIXES));
 		assertEquals(10, Score.value(new Hand(2, 5, 2, 5, 2), Score.Type.FIVES));
 		assertEquals(12, Score.value(new Hand(2, 4, 4, 1, 4), Score.Type.FOURS));
 	}
-	
+
 	@Test
 	public void testPairs() {
 		assertEquals(8, Score.value(new Hand(1, 4, 3, 4, 6), Score.Type.PAIR));
@@ -37,7 +37,7 @@ public class ScoreTest {
 		assertEquals(6, Score.value(new Hand(3, 2, 3, 1, 3), Score.Type.PAIR));
 		assertEquals(0, Score.value(new Hand(1, 2, 3, 4, 5), Score.Type.PAIR));
 	}
-	
+
 	@Test
 	public void testKinds() {
 		assertEquals(12, Score.value(new Hand(1, 4, 4, 4, 6), Score.Type.THREEOFAKIND));
@@ -64,7 +64,7 @@ public class ScoreTest {
 		assertEquals(0, Score.value(new Hand(1, 1, 1, 5, 6), Score.Type.HOUSE));
 		assertEquals(0, Score.value(new Hand(6, 6, 6, 6, 6), Score.Type.HOUSE));
 	}
-	
+
 	@Test
 	public void testYatzy() {
 		assertEquals(50, Score.value(new Hand(1, 1, 1, 1, 1), Score.Type.YATZY));
@@ -73,7 +73,7 @@ public class ScoreTest {
 		assertEquals(0, Score.value(new Hand(1, 1, 1, 1, 6), Score.Type.YATZY));
 		assertEquals(0, Score.value(new Hand(6, 6, 4, 6, 6), Score.Type.YATZY));
 	}
-	
+
 	 @Test
 	 public void testChance() {
 			assertEquals(5, Score.value(new Hand(1, 1, 1, 1, 1), Score.Type.CHANCE));

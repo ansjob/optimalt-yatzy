@@ -4,10 +4,11 @@ package se.kth.ansjobmarcular;
  * Hello world!
  *
  */
-public class App 
+public class App
 {
-    public static void main( String[] args )
+    public static void main( String[] args ) throws ClassNotFoundException
     {
         System.out.println( "Hello World!" );
+        Class.forName("se.kth.ansjobmarcular.Hand");
     }
 }
