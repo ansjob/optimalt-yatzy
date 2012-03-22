@@ -6,8 +6,9 @@ import java.util.Map;
 
 /**
  * The hand class represents the 5 dices in a set state.
+ * 
  * @author Marcus
- *
+ * 
  */
 public class Hand {
 	public final int SIZE = 5;
@@ -27,6 +28,7 @@ public class Hand {
 		return Arrays.copyOf(dice, SIZE);
 	}
 
+<<<<<<< HEAD
     public static int indexOf(Hand h) {
         return getIndexes.get(h);
     }
@@ -39,15 +41,18 @@ public class Hand {
     public int hashCode() {
         return Arrays.hashCode(dice);
     }
+=======
+	public int getIndex() {
+		return getIndexes.get(this);
+	}
+>>>>>>> 8d949c79f30a04af5bf2a878fa6dff8221e91a79
 
-    @Override
-    public boolean equals(Object o) {
-        if (o instanceof Hand){
-            return Arrays.equals(dice, ((Hand)o).dice);
-        }
-        return false;
-    }
+	@Override
+	public int hashCode() {
+		return Arrays.hashCode(dice);
+	}
 
+<<<<<<< HEAD
     public double probability(Hand other) {
         int misMatches = 0;
         int[] this_counts = new int[7];
@@ -80,19 +85,39 @@ public class Hand {
         getIndexes = new HashMap<Hand, Integer>();
         generate();
     }
+=======
+	@Override
+	public boolean equals(Object o) {
+		if (o instanceof Hand) {
+			return Arrays.equals(dice, ((Hand) o).dice);
+		}
+		return false;
+	}
 
-    private static void generate() {
-        int a,b,c,d,e,i;
-        i = 0;
+	private static final Map<Integer, Hand> getHands;
+	private static final Map<Hand, Integer> getIndexes;
+
+	static {
+		getHands = new HashMap<Integer, Hand>();
+		getIndexes = new HashMap<Hand, Integer>();
+		generate();
+		System.out.println("Genererade " + getHands.values().size()
+				+ " händer ");
+	}
+>>>>>>> 8d949c79f30a04af5bf2a878fa6dff8221e91a79
+
+	private static void generate() {
+		int a, b, c, d, e, i;
+		i = 0;
 		for (a = 1; a <= 6; a++) {
 			for (b = a; b <= 6; b++) {
 				for (c = b; c <= 6; c++) {
 					for (d = c; d <= 6; d++) {
 						for (e = d; e <= 6; e++) {
-                            i++;
+							i++;
 							Hand h = new Hand(a, b, c, d, e);
-                            getHands.put(i, h);
-                            getIndexes.put(h, i);
+							getHands.put(i, h);
+							getIndexes.put(h, i);
 						}
 					}
 				}
