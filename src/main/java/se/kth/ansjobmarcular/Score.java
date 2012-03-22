@@ -17,17 +17,12 @@ public class Score {
 	public static int value(Hand hand, Category sp) {
 		switch (sp) {
 		case ONES:
-			return count(hand, 1);
 		case TWOS:
-			return count(hand, 2) * 2;
 		case THREES:
-			return count(hand, 3) * 3;
 		case FOURS:
-			return count(hand, 4) * 4;
 		case FIVES:
-			return count(hand, 5) * 5;
 		case SIXES:
-			return count(hand, 6) * 6;
+			return scoreNumbers(hand, sp);
 
 		case PAIR:
 			return scorePair(hand, 1);
@@ -53,6 +48,34 @@ public class Score {
 		case CHANCE:
 			return scoreChance(hand);
 
+		default:
+			return 0;
+		}
+	}
+
+	/**
+	 * Calculate the numbers (specified) score for a hand.
+	 * 
+	 * @param hand
+	 *            Hand to be evaluated.
+	 * @param cat
+	 *            Category used for the hand (ONES for example).
+	 * @return Score.
+	 */
+	private static int scoreNumbers(Hand hand, Category cat) {
+		switch (cat) {
+		case ONES:
+			return count(hand, 1);
+		case TWOS:
+			return count(hand, 2) * 2;
+		case THREES:
+			return count(hand, 3) * 3;
+		case FOURS:
+			return count(hand, 4) * 4;
+		case FIVES:
+			return count(hand, 5) * 5;
+		case SIXES:
+			return count(hand, 6) * 6;
 		default:
 			return 0;
 		}
