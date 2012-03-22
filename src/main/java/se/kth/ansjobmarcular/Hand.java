@@ -28,7 +28,6 @@ public class Hand {
 		return Arrays.copyOf(dice, SIZE);
 	}
 
-<<<<<<< HEAD
     public static int indexOf(Hand h) {
         return getIndexes.get(h);
     }
@@ -41,18 +40,11 @@ public class Hand {
     public int hashCode() {
         return Arrays.hashCode(dice);
     }
-=======
+    
 	public int getIndex() {
 		return getIndexes.get(this);
 	}
->>>>>>> 8d949c79f30a04af5bf2a878fa6dff8221e91a79
 
-	@Override
-	public int hashCode() {
-		return Arrays.hashCode(dice);
-	}
-
-<<<<<<< HEAD
     public double probability(Hand other) {
         int misMatches = 0;
         int[] this_counts = new int[7];
@@ -75,17 +67,16 @@ public class Hand {
     }
 
 
-
-    private static final Map<Integer, Hand> getHands;
-    private static final Map<Hand, Integer> getIndexes;
     private static final int[] factorial = {1,1,2, 6, 24, 120, 720};
 
+	private static final Map<Integer, Hand> getHands;
+	private static final Map<Hand, Integer> getIndexes;
     static {
         getHands = new HashMap<Integer, Hand>();
         getIndexes = new HashMap<Hand, Integer>();
         generate();
     }
-=======
+    
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Hand) {
@@ -93,18 +84,6 @@ public class Hand {
 		}
 		return false;
 	}
-
-	private static final Map<Integer, Hand> getHands;
-	private static final Map<Hand, Integer> getIndexes;
-
-	static {
-		getHands = new HashMap<Integer, Hand>();
-		getIndexes = new HashMap<Hand, Integer>();
-		generate();
-		System.out.println("Genererade " + getHands.values().size()
-				+ " händer ");
-	}
->>>>>>> 8d949c79f30a04af5bf2a878fa6dff8221e91a79
 
 	private static void generate() {
 		int a, b, c, d, e, i;
