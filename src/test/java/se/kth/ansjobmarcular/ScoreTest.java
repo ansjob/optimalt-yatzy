@@ -1,11 +1,11 @@
-package se.kth.dkand.tests;
+package se.kth.ansjobmarcular;
 
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.junit.runners.Suite;
 import se.kth.ansjobmarcular.Hand;
 import se.kth.ansjobmarcular.Score;
-
 
 public class ScoreTest {
 

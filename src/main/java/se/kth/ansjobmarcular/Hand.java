@@ -11,11 +11,7 @@ import java.util.Map;
  */
 public class Hand {
 	public final int SIZE = 5;
-	int dice[];
-
-	public Hand() {
-		dice = new int[SIZE];
-	}
+	private final int dice[];
 
 	public Hand(int a, int b, int c, int d, int e) {
 		dice = new int[SIZE];
@@ -27,18 +23,17 @@ public class Hand {
 		Arrays.sort(this.dice);
 	}
 
-	public void setDice(int a, int b, int c, int d, int e) {
-		this.dice[0] = a;
-		this.dice[1] = b;
-		this.dice[2] = c;
-		this.dice[3] = d;
-		this.dice[4] = e;
-		Arrays.sort(this.dice);
+	public int[] getDice() {
+		return Arrays.copyOf(dice, SIZE);
 	}
 
-	public int[] getDice() {
-		return dice;
-	}
+    public static int indexOf(Hand h) {
+        return getIndexes.get(h);
+    }
+
+    public static Hand getHand(int index) {
+        return getHands.get(index);
+    }
 
     @Override
     public int hashCode() {
@@ -53,15 +48,37 @@ public class Hand {
         return false;
     }
 
+    public double probability(Hand other) {
+        int misMatches = 0;
+        int[] this_counts = new int[7];
+        int[] other_counts = new int[7];
+        int[] needed = new int[7];
+        for (int i = 0; i < SIZE; i++) {
+            this_counts[this.dice[i]]++;
+            other_counts[other.dice[i]]++;
+        }
+        for (int i = 1 ; i <= 6; i++) {
+            needed[i] = other_counts[i] <= this_counts[i] ? 0: other_counts[i] - this_counts[i];
+            misMatches += needed[i];
+        }
+        return factorial[needed[1]]
+                * factorial[needed[2]]
+                * factorial[needed[3]]
+                * factorial[needed[4]]
+                * factorial[needed[5]]
+                * factorial[needed[6]] / Math.pow(6.0, misMatches);
+    }
+
+
 
     private static final Map<Integer, Hand> getHands;
     private static final Map<Hand, Integer> getIndexes;
+    private static final int[] factorial = {1,1,2, 6, 24, 120, 720};
 
     static {
         getHands = new HashMap<Integer, Hand>();
         getIndexes = new HashMap<Hand, Integer>();
         generate();
-        System.out.println("Genererade " + getHands.values().size() + " händer ");
     }
 
     private static void generate() {
@@ -82,6 +99,4 @@ public class Hand {
 			}
 		}
 	}
-
-
 }
