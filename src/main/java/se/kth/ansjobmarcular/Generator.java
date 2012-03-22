@@ -10,7 +10,7 @@ public class Generator {
 				for (c = b; c <= 6; c++) {
 					for (d = c; d <= 6; d++) {
 						for (e = d; e <= 6; e++) {
-							System.out.println(Score.value(new Hand(a, b, c, d, e), Score.Type.ACES));
+							System.out.println(Score.value(new Hand(a, b, c, d, e), Category.ONES));
 						}
 					}
 				}

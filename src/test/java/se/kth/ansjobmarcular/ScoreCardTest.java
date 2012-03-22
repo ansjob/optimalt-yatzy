@@ -4,7 +4,6 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 
-import se.kth.ansjobmarcular.Score;
 import se.kth.ansjobmarcular.ScoreCard;
 
 public class ScoreCardTest {
@@ -14,13 +13,13 @@ public class ScoreCardTest {
 		ScoreCard sc = new ScoreCard();
 		assertEquals(0, sc.getIndex());	
 		
-		sc.fillScore(Score.Type.HOUSE);
+		sc.fillScore(Category.HOUSE);
 		assertEquals(4, sc.getIndex());
 		
-		sc.fillScore(Score.Type.YATZY);
+		sc.fillScore(Category.YATZY);
 		assertEquals(5, sc.getIndex());
 
-		sc.fillScore(Score.Type.ACES, 500);
+		sc.fillScore(Category.ONES, 500);
 		assertEquals(2113541, sc.getIndex());
 	}
 

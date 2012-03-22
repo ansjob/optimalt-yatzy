@@ -9,8 +9,8 @@ public class ScoreCard {
 		filled = 0;
 	}
 	
-	public void fillScore(Score.Type st) {
-		fillScore(st, 0);
+	public void fillScore(Category cat) {
+		fillScore(cat, 0);
 	}
 	
 	public void addScore(int score) {
@@ -19,9 +19,9 @@ public class ScoreCard {
 			upperTotal = 64;
 	}
 	
-	public void fillScore(Score.Type st, int score) {
-		switch (st) {
-		case ACES:
+	public void fillScore(Category cat, int score) {
+		switch (cat) {
+		case ONES:
 			filled |= (1 << 14);
 			addScore(score);
 			break;
@@ -60,7 +60,7 @@ public class ScoreCard {
 		case SMALLSTRAIGHT:
 			filled |= (1 << 4);
 			break;
-		case BIGSTRAIGHT:
+		case LARGESTRAIGHT:
 			filled |= (1 << 3);
 			break;
 		case HOUSE:

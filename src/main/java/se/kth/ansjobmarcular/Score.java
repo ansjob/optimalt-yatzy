@@ -4,10 +4,6 @@ import java.util.Arrays;
 
 public class Score {
 
-	public enum Type {
-		ACES, TWOS, THREES, FOURS, FIVES, SIXES, PAIR, TWOPAIR, THREEOFAKIND, FOUROFAKIND, SMALLSTRAIGHT, BIGSTRAIGHT, HOUSE, YATZY, CHANCE
-	}
-
 	/**
 	 * Calculate the score value for a given hand in the given score type.
 	 * 
@@ -18,9 +14,9 @@ public class Score {
 	 *            etc.
 	 * @return The numeric score of the hand, if filled in as the given type.
 	 */
-	public static int value(Hand hand, Type sp) {
+	public static int value(Hand hand, Category sp) {
 		switch (sp) {
-		case ACES:
+		case ONES:
 			return count(hand, 1);
 		case TWOS:
 			return count(hand, 2) * 2;
@@ -44,9 +40,9 @@ public class Score {
 			return scoreKind(hand, 4);
 
 		case SMALLSTRAIGHT:
-			return scoreStraight(hand, Type.SMALLSTRAIGHT);
-		case BIGSTRAIGHT:
-			return scoreStraight(hand, Type.BIGSTRAIGHT);
+			return scoreStraight(hand, Category.SMALLSTRAIGHT);
+		case LARGESTRAIGHT:
+			return scoreStraight(hand, Category.LARGESTRAIGHT);
 
 		case HOUSE:
 			return scoreHouse(hand);
@@ -137,11 +133,11 @@ public class Score {
 	 *            The type of straight (big/small) to be calculated.
 	 * @return Score.
 	 */
-	private static int scoreStraight(Hand hand, Type type) {
-		if (type == Type.SMALLSTRAIGHT
+	private static int scoreStraight(Hand hand, Category type) {
+		if (type == Category.SMALLSTRAIGHT
 				&& Arrays.equals(hand.getDice(), new int[] { 1, 2, 3, 4, 5 }))
 			return 15;
-		if (type == Type.BIGSTRAIGHT
+		if (type == Category.LARGESTRAIGHT
 				&& Arrays.equals(hand.getDice(), new int[] { 2, 3, 4, 5, 6 }))
 			return 20;
 		return 0;
