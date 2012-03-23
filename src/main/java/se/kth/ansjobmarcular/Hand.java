@@ -52,7 +52,9 @@ public class Hand {
         int[] needed = new int[7];
         int rolled = 0;
         int dices = 0;
-        
+        int s = 1;
+	int d;
+
         for (int i = 0; i < SIZE; i++) {
         	if ((holdMask & (16 >> i)) > 0)
         		held[this.dice[i]]++;
@@ -61,29 +63,33 @@ public class Hand {
         	desired[other.getDice()[i]]++;
         }
         
-        for (int i = 1; i <= 6; i++) {			
+        for (int i = 1; i <= 6; i++) {
         	if (held[i] > desired[i]) {
         		return 0;
         	} else if (held[i] < desired[i]) {
         		dices++;
-				needed[i] = desired[i] - held[i];
-				System.out.println("need " + needed[i] + " " + i + "s");
+			needed[i] = desired[i] - held[i];
         	}
         }
-        
-		System.out.println("rolled = " + rolled + ", groups = " + dices);
-		System.out.println("ncr(" + (rolled + dices - 1) + "," + (dices - 1) + ")");
-        System.out.println();
-        
-        return nCr(rolled + dices - 1, dices - 1) / Math.pow(6.0, rolled);
+
+	d = rolled;
+	for (int i = 1; i <= 6; i++) {
+		s *= nCr(d, needed[i]);
+		d -= needed[i];
+	}
+
+        return s / Math.pow(6.0, rolled);
     }
     
-    public double nCr(int a, int b) {
-    	if (a == -1 && b == -1)
-    		return 1;
-		return factorial[a]/(factorial[b]*factorial[(a - b)]);
+    public static int nCr(int a, int b) {
+	if (b == 0)
+		return 1;
+	if (a == 0)
+		return 0;
+	if (b > a)
+		return 0;
+	return factorial[a]/(factorial[b]*factorial[(a - b)]);
     }
-
 
     private static final int[] factorial = {1,1,2, 6, 24, 120, 720};
 
