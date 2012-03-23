@@ -46,25 +46,42 @@ public class Hand {
 		return getIndexes.get(this);
 	}
 
-    public double probability(Hand other) {
-        int misMatches = 0;
-        int[] this_counts = new int[7];
-        int[] other_counts = new int[7];
+    public double probability(Hand other, int holdMask) {
+        int[] desired = new int[7];
+        int[] held = new int[7];
         int[] needed = new int[7];
+        int rolled = 0;
+        int dices = 0;
+        
         for (int i = 0; i < SIZE; i++) {
-            this_counts[this.dice[i]]++;
-            other_counts[other.dice[i]]++;
+        	if ((holdMask & (16 >> i)) > 0)
+        		held[this.dice[i]]++;
+        	else
+        		rolled++;
+        	desired[other.getDice()[i]]++;
         }
-        for (int i = 1 ; i <= 6; i++) {
-            needed[i] = other_counts[i] <= this_counts[i] ? 0: other_counts[i] - this_counts[i];
-            misMatches += needed[i];
+        
+        for (int i = 1; i <= 6; i++) {			
+        	if (held[i] > desired[i]) {
+        		return 0;
+        	} else if (held[i] < desired[i]) {
+        		dices++;
+				needed[i] = desired[i] - held[i];
+				System.out.println("need " + needed[i] + " " + i + "s");
+        	}
         }
-        return factorial[needed[1]]
-                * factorial[needed[2]]
-                * factorial[needed[3]]
-                * factorial[needed[4]]
-                * factorial[needed[5]]
-                * factorial[needed[6]] / Math.pow(6.0, misMatches);
+        
+		System.out.println("rolled = " + rolled + ", groups = " + dices);
+		System.out.println("ncr(" + (rolled + dices - 1) + "," + (dices - 1) + ")");
+        System.out.println();
+        
+        return nCr(rolled + dices - 1, dices - 1) / Math.pow(6.0, rolled);
+    }
+    
+    public double nCr(int a, int b) {
+    	if (a == -1 && b == -1)
+    		return 1;
+		return factorial[a]/(factorial[b]*factorial[(a - b)]);
     }
 
 
