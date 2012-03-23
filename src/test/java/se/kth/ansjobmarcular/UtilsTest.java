@@ -4,6 +4,8 @@
  */
 package se.kth.ansjobmarcular;
 
+import java.util.Arrays;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -15,19 +17,19 @@ public class UtilsTest {
 
     @Test
     public void TestOne() {
-        Boolean[] bools = {true};
+        boolean[] bools = {true};
         assertEquals(1, Utils.fromBooleanArray(bools));
     }
 
     @Test
     public void TestTwo() {
-        Boolean[] bools = {true, false};
+        boolean[] bools = {true, false};
         assertEquals(2, Utils.fromBooleanArray(bools));
     }
 
     @Test
     public void Test42() {
-        Boolean[] bools = {true, false, true, false, true, false};
+        boolean[] bools = {true, false, true, false, true, false};
         assertEquals(42, Utils.fromBooleanArray(bools));
     }
 
@@ -35,16 +37,16 @@ public class UtilsTest {
     public void OneToBoolean() {
         int x = 1;
         int size = 4;
-        Boolean[] expected = {false, false, false, true};
-        assertArrayEquals(expected, Utils.fromInt(x, size));
+        boolean[] expected = {false, false, false, true};
+        assertTrue(Arrays.equals(expected, Utils.fromInt(x, size)));
     }
 
     @Test
     public void FiveToBoolean() {
         int x = 5;
         int size = 4;
-        Boolean[] expected = {false, true, false, true};
-        assertArrayEquals(expected, Utils.fromInt(x, size));
+        boolean[] expected = {false, true, false, true};
+        assertTrue(Arrays.equals(expected, Utils.fromInt(x, size)));
     }
 
     @Test
@@ -52,6 +54,42 @@ public class UtilsTest {
         for (int i = 0; i < 1024; i++) {
             assertEquals(i, Utils.fromBooleanArray(Utils.fromInt(i, 32)));
         }
+    }
+    
+    @Test
+    public void test3Ways() {
+    	int size = 3; int trues = 2;
+    	boolean[][] expected = {	
+    			{false, true, true},
+    			{true, false, true},
+    			{true, true, false}
+    	};
+    	boolean[][] actuals = Utils.allWaysToPut(trues, size);
+    	for (int i = 0; i < expected.length; i++) {
+    		assertTrue(Arrays.equals(expected[i], actuals[i]));
+    	}
+    }
+    
+    @Test
+    public void test8Ways() {
+    	int size = 5; int trues = 3;
+    	boolean[][] expected = {	
+    			{false, false, true, true, true},
+    			{false, true, false, true, true},
+    			{true, false, false, true, true},
+    			{false, true, true, false, true},
+    			{true, false, true, false, true},
+    			{true, true, false, false, true},
+    			{false, true, true, true, false},
+    			{true, false, true, true, false},
+    			{true, true, false, true, false},
+    			{true, true, true, false, false}
+    			
+    	};
+    	boolean[][] actuals = Utils.allWaysToPut(trues, size);
+    	for (int i = 0; i < expected.length; i++) {
+    		assertTrue(Arrays.equals(expected[i], actuals[i]));
+    	}
     }
 
 }
