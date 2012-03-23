@@ -11,7 +11,8 @@ import java.util.Map;
  * 
  */
 public class Hand {
-	public final int SIZE = 5;
+	public static final int	MAX_INDEX = 252;
+	public static final int SIZE = 5;
 	private final int dice[];
 
 	public Hand(int a, int b, int c, int d, int e) {

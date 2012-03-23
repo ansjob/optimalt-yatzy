@@ -1,22 +1,23 @@
 package se.kth.ansjobmarcular;
 
 public class ScoreCard {
-	int	upperTotal;
-	int		filled;
+	public static final int	MAX_INDEX = 2097152;
+	private int	upperTotal;
+	private int	filled;
 	
 	public ScoreCard() {
 		upperTotal = 0;
 		filled = 0;
 	}
-	
-	public void fillScore(Category cat) {
-		fillScore(cat, 0);
-	}
-	
+
 	public void addScore(int score) {
 		upperTotal += score;
 		if (upperTotal > 64)
 			upperTotal = 64;
+	}
+	
+	public void fillScore(Category cat) {
+		fillScore(cat, 0);
 	}
 	
 	public void fillScore(Category cat, int score) {
@@ -76,7 +77,6 @@ public class ScoreCard {
 	}
 	
 	public int getIndex() {
-		System.out.println(upperTotal + " " + filled);
 		return ((byte)upperTotal << 15) + filled;
 	}
 }
