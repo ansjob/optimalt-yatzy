@@ -35,4 +35,8 @@ public interface ActionsStorage {
 	 * @param roll
 	 */
 	public void addRollingAction(RollingAction action, ScoreCard currentScore, Hand hand, int roll);
+	
+	public void putExpectedScore(double expected, ScoreCard currentScore, Hand hand, int roll);
+	
+	public double getExpectedScore(ScoreCard currentScore, Hand hand, int roll, double expected);
 }

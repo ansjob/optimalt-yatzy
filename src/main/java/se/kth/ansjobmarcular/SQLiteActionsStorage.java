@@ -42,12 +42,19 @@ public class SQLiteActionsStorage implements ActionsStorage {
 				"scorecard integer ," +
 				"action integer ," +
 				"PRIMARY KEY (hand, scorecard));");
+		
+		stmt.execute("create table if not exists expectedScores(" +
+				"hand integer," +
+				"scorecard integer," +
+				"roll integer," +
+				"expected real);");
 	}
 
 	public RollingAction suggestRoll(Hand currentHand, ScoreCard currentScore,
 			int roll) {
+		Connection con = null;
 		try {
-			Connection con = getDb();
+			con = getDb();
 			PreparedStatement stmt = con.prepareStatement(
 					"select action from rollingActions where" +
 					"hand = ? AND scorecard = ? AND roll = ?");
@@ -61,12 +68,18 @@ public class SQLiteActionsStorage implements ActionsStorage {
 			return null;
 		} catch (SQLException e) {
 			return null;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+			}
 		}
 	}
 
 	public MarkingAction suggestMarking(Hand currentHand, ScoreCard currentScore) {
+		Connection con = null;
 		try {
-			Connection con = getDb();
+			con = getDb();
 			PreparedStatement stmt = con.prepareStatement(
 					"select action from markingActions where" +
 					"hand = ? AND scorecard = ?");
@@ -79,6 +92,11 @@ public class SQLiteActionsStorage implements ActionsStorage {
 			return null;
 		} catch (SQLException e) {
 			return null;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+			}
 		}
 	}
 
@@ -92,7 +110,7 @@ public class SQLiteActionsStorage implements ActionsStorage {
 			stmt.setInt(2, currentScore.getIndex());
 			stmt.setInt(3, action.getIndex());
 			stmt.execute();
-			
+			con.close();
 		} catch (SQLException e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -108,8 +126,51 @@ public class SQLiteActionsStorage implements ActionsStorage {
 			stmt.setInt(3, roll);
 			stmt.setInt(4, action.getIndex());
 			stmt.execute();
+			con.close();
 		} catch (SQLException e) {
 			throw new IllegalArgumentException(e);
+		}
+	}
+
+	public void putExpectedScore(double expected, ScoreCard currentScore,
+			Hand hand, int roll) {
+		try {
+			Connection con = getDb();
+			PreparedStatement stmt = con.prepareStatement("insert into expectedScores values (?, ?, ?, ?);");
+			stmt.setInt(1, hand.getIndex());
+			stmt.setInt(2, currentScore.getIndex());
+			stmt.setInt(3, roll);
+			stmt.setDouble(4, expected);
+			stmt.execute();
+			con.close();
+		} catch (SQLException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
+	public double getExpectedScore(ScoreCard currentScore, Hand hand, int roll,
+			double expected) {
+		Connection con = null;
+		try {
+			con = getDb();
+			PreparedStatement stmt = con.prepareStatement(
+					"select expected from expectedScores where" +
+					"hand = ? AND scorecard = ? and roll = ?");
+			stmt.setInt(1, hand.getIndex());
+			stmt.setInt(2, currentScore.getIndex());
+			stmt.setInt(3, roll);
+			ResultSet res = stmt.executeQuery();
+			if (res != null && res.next()) {
+				return res.getDouble(1);
+			}
+			return -1;
+		} catch (SQLException e) {
+			return -1;
+		} finally {
+			try {
+				con.close();
+			} catch (SQLException e) {
+			}
 		}
 	}
 
