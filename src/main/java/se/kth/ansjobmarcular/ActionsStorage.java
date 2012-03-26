@@ -38,5 +38,7 @@ public interface ActionsStorage {
 	
 	public void putExpectedScore(double expected, ScoreCard currentScore, Hand hand, int roll);
 	
-	public double getExpectedScore(ScoreCard currentScore, Hand hand, int roll, double expected);
+	public double getExpectedScore(ScoreCard currentScore, Hand hand, int roll);
+	
+	public void clearDb();
 }

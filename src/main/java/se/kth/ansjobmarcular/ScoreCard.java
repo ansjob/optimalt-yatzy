@@ -3,8 +3,6 @@ package se.kth.ansjobmarcular;
 import java.io.Serializable;
 
 public class ScoreCard implements Serializable {
-	private static final long serialVersionUID = -1807448688868296149L;
-	
 	/* 64 << 15 + 2^15 = 2129919 */
 	public static final int	MAX_INDEX = 2129919;
 	private int	upperTotal;
@@ -13,6 +11,53 @@ public class ScoreCard implements Serializable {
 	public ScoreCard() {
 		upperTotal = 0;
 		filled = 0;
+	}
+	
+	public ScoreCard(int filled, int upperTotal) {
+		this.filled = filled;
+		this.upperTotal = upperTotal;
+	}
+	
+	@Override
+	protected Object clone() throws CloneNotSupportedException {
+		return new ScoreCard(filled, upperTotal);
+	}
+	
+	public boolean isFilled(Category cat) {
+		switch (cat) {
+		case ONES:
+			return (filled & (1 << 14)) > 0;
+		case TWOS:
+			return (filled & (1 << 13)) > 0;
+		case THREES:
+			return (filled & (1 << 12)) > 0;
+		case FOURS:
+			return (filled & (1 << 11)) > 0;
+		case FIVES:
+			return (filled & (1 << 10)) > 0;
+		case SIXES:
+			return (filled & (1 << 9)) > 0;
+		case PAIR:
+			return (filled & (1 << 8)) > 0;
+		case TWOPAIR:
+			return (filled & (1 << 7)) > 0;
+		case THREEOFAKIND:
+			return (filled & (1 << 6)) > 0;
+		case FOUROFAKIND:
+			return (filled & (1 << 5)) > 0;
+		case SMALLSTRAIGHT:
+			return (filled & (1 << 4)) > 0;
+		case LARGESTRAIGHT:
+			return (filled & (1 << 3)) > 0;
+		case HOUSE:
+			return (filled & (1 << 2)) > 0;
+		case CHANCE:
+			return (filled & (1 << 1)) > 0;
+		case YATZY:
+			return (filled & (1 << 0)) > 0;
+		default:
+			return false;
+		}
 	}
 	
 	public int getUpper() {
@@ -97,7 +142,7 @@ public class ScoreCard implements Serializable {
 	public static final ScoreCard[] scoreCards;
 	static {
 		scoreCards = new ScoreCard[ScoreCard.MAX_INDEX + 1];
-		generate();
+		//generate();
 	}
 	
 	private static void generate() {
