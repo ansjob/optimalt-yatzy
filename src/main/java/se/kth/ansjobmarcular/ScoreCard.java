@@ -79,4 +79,9 @@ public class ScoreCard {
 	public int getIndex() {
 		return ((byte)upperTotal << 15) + filled;
 	}
+	
+	@Override
+	public String toString() {
+		return "" + getIndex();
+	}
 }
