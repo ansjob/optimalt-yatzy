@@ -1,7 +1,7 @@
 package se.kth.ansjobmarcular;
 
 public class ScoreCard {
-	public static final int	MAX_INDEX = 2097152;
+	public static final int	MAX_INDEX = 4194304;
 	private int	upperTotal;
 	private int	filled;
 	
