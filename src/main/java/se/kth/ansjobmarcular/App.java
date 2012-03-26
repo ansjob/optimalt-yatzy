@@ -10,5 +10,9 @@ public class App
     {
         System.out.println( "Hello World!" );
         Class.forName("se.kth.ansjobmarcular.Hand");
+        Class.forName("se.kth.ansjobmarcular.ScoreCard");
+        
+        Generator gen = new Generator();
+        gen.generateBaseCases();
     }
 }

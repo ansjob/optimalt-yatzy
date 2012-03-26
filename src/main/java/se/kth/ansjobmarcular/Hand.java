@@ -111,6 +111,11 @@ public class Hand {
 		}
 		return false;
 	}
+	
+	@Override
+	public String toString() {
+		return Arrays.toString(dice);
+	}
 
 	private static void generate() {
 		int a, b, c, d, e, i;
