@@ -1,13 +1,22 @@
 package se.kth.ansjobmarcular;
 
-public class ScoreCard {
-	public static final int	MAX_INDEX = 4194304;
+import java.io.Serializable;
+
+public class ScoreCard implements Serializable {
+	private static final long serialVersionUID = -1807448688868296149L;
+	
+	/* 64 << 15 + 2^15 = 2129919 */
+	public static final int	MAX_INDEX = 2129919;
 	private int	upperTotal;
 	private int	filled;
 	
 	public ScoreCard() {
 		upperTotal = 0;
 		filled = 0;
+	}
+	
+	public int getUpper() {
+		return upperTotal;
 	}
 
 	public void addScore(int score) {
@@ -83,5 +92,34 @@ public class ScoreCard {
 	@Override
 	public String toString() {
 		return "" + getIndex();
+	}
+	
+	public static final ScoreCard[] scoreCards;
+	static {
+		scoreCards = new ScoreCard[ScoreCard.MAX_INDEX + 1];
+		generate();
+	}
+	
+	private static void generate() {
+		ScoreCard sc;
+		boolean[][] ways;
+		int idx = 0;
+		
+		for (int i = 0; i <= 15; i++) {
+			for (int j = 0; j <= 64; j++) {
+				ways = Utils.allWaysToPut(i, 15);
+				for (boolean[] way : ways) {
+					sc = new ScoreCard();
+					sc.addScore(j);
+					for (int k = 0; k < way.length; k++) {
+						if (way[k])
+							sc.fillScore(Category.values()[k]);
+					}
+					if (scoreCards[idx] != null)
+						throw new RuntimeException();
+					scoreCards[idx++] = sc;
+				}
+			}
+		}
 	}
 }
