@@ -54,14 +54,18 @@ public class Hand {
 		int s = 1;
 		int d;
 
+		/* Count the number of dice of each type that are held & desired. */
 		for (int i = 0; i < SIZE; i++) {
+			/* See if the holdMask tells us to hold/keep this dice. */
 			if ((holdMask & (16 >> i)) > 0)
 				held[this.dice[i]]++;
 			else
+				/* If it's not held, increase the number of dice rolled. */
 				rolled++;
 			desired[other.getDice()[i]]++;
 		}
 
+		/* Calculate the number of dice we need to roll. */
 		for (int i = 1; i <= 6; i++) {
 			if (held[i] > desired[i]) {
 				return 0;
@@ -70,6 +74,7 @@ public class Hand {
 			}
 		}
 
+		/* Calculate the probability of rolling those dice. */
 		d = rolled;
 		for (int i = 1; i <= 6; i++) {
 			s *= nCr(d, needed[i]);
