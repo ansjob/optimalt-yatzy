@@ -167,4 +167,17 @@ public class ScoreCard implements Serializable {
 			}
 		}
 	}
+	
+	@Override
+	public int hashCode() {
+		return getIndex();
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ScoreCard) {
+			return ((ScoreCard)obj).getIndex() == this.getIndex();
+		}
+		return false;
+	}
 }

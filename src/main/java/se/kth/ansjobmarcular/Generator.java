@@ -1,14 +1,23 @@
 package se.kth.ansjobmarcular;
 
-import java.util.logging.Logger;
+import java.util.HashMap;
 
 public class Generator {
 	
-	private ActionsStorage db;
+	
+	private HashMap<ScoreCard, Double>[][] expectedScores, workingVals;
+	
 	
 	public Generator() {
-		db = new SQLiteActionsStorage();
-		db.clearDb();
+		workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?,?>[4][253];
+		expectedScores = (HashMap<ScoreCard, Double>[][]) new HashMap<?,?>[4][253];
+		
+		for (int i = 0; i < 4; i++) {
+			for (int j = 0; j < 253; j++) {
+				workingVals[i][j] = new HashMap<ScoreCard, Double>();
+				expectedScores[i][j] = new HashMap<ScoreCard, Double>();
+			}
+		}
 	}
 
 	public void generateBaseCases() {
@@ -30,10 +39,11 @@ public class Generator {
 					for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
 						double expected = Score.value(
 								Hand.getHand(hand), Category.values()[cat]);
-						db.putExpectedScore(expected, sc, Hand.getHand(hand), roll);
-						System.out.printf("%s: %s => %.2f\n",
-								Category.values()[cat], Hand.getHand(hand)
-										.toString(), expected);
+						//db.putExpectedScore(expected, sc, Hand.getHand(hand), roll);
+						expectedScores[3][hand].put(sc, expected);
+//						System.out.printf("%s: %s => %.2f\n",
+//								Category.values()[cat], Hand.getHand(hand)
+//										.toString(), expectedScores[3][hand].get(sc));
 					}
 					continue;
 				}
@@ -47,7 +57,7 @@ public class Generator {
 						score = 0;
 						/* For every possible hand. */
 						for (int destHand = 1; destHand <= Hand.MAX_INDEX; destHand++) {
-							double expected = db.getExpectedScore(sc, Hand.getHand(destHand), roll+1);
+							double expected = expectedScores[roll+1][destHand].get(sc);
 							score += Hand.getHand(hand).probability(Hand.getHand(destHand), mask)
 									* expected;
 						}
@@ -67,11 +77,14 @@ public class Generator {
 					 * Remember the expected score, and action for this
 					 * combination of holding.
 					 */
-					db.putExpectedScore(max, sc, Hand.getHand(hand), roll);
+//					db.putExpectedScore(max, sc, Hand.getHand(hand), roll);
+					expectedScores[roll][hand].put(sc, max);
 					action = bestMask;
-					System.out.printf("%s: %s roll: %d, action: %x => %.2f\n",
-							Category.values()[cat], Hand.getHand(hand), roll,
-							action, max);
+//					System.out.printf("%s: %s roll: %d, action: %x => %.2f\n",
+//							Category.values()[cat], Hand.getHand(hand), roll,
+//							action, expectedScores[roll][hand].get(sc));
+					if (roll == 0)
+						break;
 				}
 			}
 		}
@@ -84,11 +97,19 @@ public class Generator {
 		ScoreCard sc, tmpSc;
 		Category category, otherCat;
 
-		for (int filled = 15; filled >= 0; filled--) {
+		for (int filled = 13; filled >= 0; filled--) {
+			
+			workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?,?>[4][253];
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j < 253; j++) {
+					workingVals[i][j] = new HashMap<ScoreCard, Double>();
+				}
+			}
+			
 			ways = Utils.allWaysToPut(filled, 15);
-			for (boolean[] way : ways) {
+			for (boolean[] way : ways) {/* For every way the scorecard may be filled when we get here */
 				sc = new ScoreCard();
-				for (int i = 0; i < way.length; i++) {
+				for (int i = 0; i < way.length; i++) {/* Fill out the scorecard in a new way*/
 					if (way[i])
 						sc.fillScore(Category.values()[i]);
 				}
@@ -97,9 +118,11 @@ public class Generator {
 					if (roll == 3) {
 						/* For every possible hand. */
 						for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+							max = 0;
+							Category bestCategory = null;
 							/* For every unfilled category. */
-							for (int cat = 0; cat < 15; cat++) {
-								category = Category.values()[cat];
+							for (int cat = 1; cat <= 15; cat++) {
+								category = Category.values()[cat-1];
 								if (sc.isFilled(category))
 									continue;
 
@@ -110,38 +133,22 @@ public class Generator {
 									e.printStackTrace();
 									return;
 								}
+								tmpSc.fillScore(Category.values()[cat-1]);
 
 								/*
 								 * Calculate the expected score if filling
 								 * current category with the hand.
 								 */
 								score = Score.value(Hand.getHand(hand),
-										category);
-								int i = cat + 1;
-								for (int unfilled = 1; unfilled <= 14 - filled; unfilled++) {
-									while (way[i])
-										i++;
-
-									/*
-									 * Find the first unfilled category except
-									 * the one we just "filled".
-									 */
-									otherCat = Category.values()[i];
-
-									/*
-									 * Calculate the expected score for this
-									 * category the next round.
-									 */
-									score += db.getExpectedScore(tmpSc, Hand.getHand(hand), roll);
-
-									/*
-									 * Start looking for next unfilled category
-									 * on next category.
-									 */
-									i++;
+										category) + expectedScores[0][1].get(tmpSc);
+								
+								if (score >= max) {
+									max = score;
+									bestCategory = Category.values()[cat-1];
 								}
-								db.putExpectedScore(score, tmpSc, Hand.getHand(hand), 3);
 							}
+							workingVals[3][hand].put(sc, max);
+							System.out.printf("%x: filling %s: %s => %.2f\n", sc.getIndex(), bestCategory, Hand.getHand(hand), max);
 						}
 						continue;
 					}
@@ -152,9 +159,8 @@ public class Generator {
 					}
 				}
 			}
-			for (int curCat = 1; curCat <= 15; curCat++) {
-
-			}
+			
+			expectedScores = workingVals;
 		}
 	}
 }

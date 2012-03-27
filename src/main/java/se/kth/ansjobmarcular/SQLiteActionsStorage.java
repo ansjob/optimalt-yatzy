@@ -7,41 +7,90 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import org.sqlite.SQLiteConfig;
+import org.sqlite.SQLiteConfig.SynchronousMode;
+
 public class SQLiteActionsStorage implements ActionsStorage {
-
-	private static boolean loadedDriver = false;
-
-	private static final String FILE_NAME = "optimal-yatzy.db";
-	
-	private Connection con;
-
-	private static Connection getDb() throws SQLException {
-		return DriverManager.getConnection("jdbc:sqlite:" + FILE_NAME);
-	}
-	
-	public SQLiteActionsStorage() {
-		try {
-			this.con = getDb();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-	}
 
 	static {
 		try {
 			Class.forName("org.sqlite.JDBC");
 			loadedDriver = true;
-			DataDefinition();
 		} catch (ClassNotFoundException e) {
 			/* Nothing to do about it */
+		}
+	}
+
+	private static boolean loadedDriver = false;
+
+	private static final String FILE_NAME = "optimal-yatzy.db";
+	
+	private PreparedStatement suggestRollStmt;
+	
+	private PreparedStatement putRollStmt;
+	
+	private PreparedStatement suggestMarkStmt;
+	
+	private PreparedStatement putMarkStmt;
+	
+	private PreparedStatement putExpectedStmt;
+	
+	private PreparedStatement getExpectedStmt;
+	
+	private Connection con;
+
+	private static Connection getDb() throws SQLException {
+		SQLiteConfig config = new SQLiteConfig();
+		config.setSynchronous(SynchronousMode.OFF);
+		return DriverManager.getConnection("jdbc:sqlite:");
+	}
+	
+	public SQLiteActionsStorage() {
+		try {
+			this.con = getDb();
+			con.setAutoCommit(false);
+			DataDefinition();
+			prepareStatements();
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+
+	private void prepareStatements() throws SQLException {
+		
+		this.getExpectedStmt = con.prepareStatement(
+				"select expected from expectedScores where " +
+				"hand = ? AND scorecard = ? and roll = ?");
+		
+		this.putExpectedStmt = con.prepareStatement("insert into expectedScores values (?, ?, ?, ?);");
+		
+		this.putMarkStmt = con.prepareStatement("insert into markingActions VALUES(?,?,?);");
+		
+		this.putRollStmt = con.prepareStatement("insert into rollingActions values (?, ?, ?, ?);");
+		
+		this.suggestMarkStmt = con.prepareStatement(
+				"select action from markingActions where " +
+				"hand = ? AND scorecard = ?");
+		
+		this.suggestRollStmt = con.prepareStatement(
+				"select action from rollingActions where " +
+				"hand = ? AND scorecard = ? AND roll = ?");
+	}
+
+	
+	public void beginTransaction() {
+	}
+	
+	public void endTransaction() {
+		try {
+			con.commit();
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static void DataDefinition() throws SQLException {
-		Connection con = getDb();
+	public void DataDefinition() throws SQLException {
 		Statement stmt = con.createStatement();
 		stmt.execute("create table if not exists rollingActions(" +
 				"hand integer, " +
@@ -62,19 +111,16 @@ public class SQLiteActionsStorage implements ActionsStorage {
 				"roll integer," +
 				"expected real, " +
 				"PRIMARY KEY (hand, scorecard, roll));");
-		con.close();
 	}
 
 	public RollingAction suggestRoll(Hand currentHand, ScoreCard currentScore,
 			int roll) {
 		try {
-			PreparedStatement stmt = con.prepareStatement(
-					"select action from rollingActions where" +
-					"hand = ? AND scorecard = ? AND roll = ?");
-			stmt.setInt(1, currentHand.getIndex());
-			stmt.setInt(2, currentScore.getIndex());
-			stmt.setInt(3, roll);
-			ResultSet res = stmt.executeQuery();
+			
+			this.suggestRollStmt.setInt(1, currentHand.getIndex());
+			this.suggestRollStmt.setInt(2, currentScore.getIndex());
+			this.suggestRollStmt.setInt(3, roll);
+			ResultSet res = this.suggestRollStmt.executeQuery();
 			if (res != null && res.next()) {
 				return new RollingAction(res.getInt(1));
 			}
@@ -86,12 +132,10 @@ public class SQLiteActionsStorage implements ActionsStorage {
 
 	public MarkingAction suggestMarking(Hand currentHand, ScoreCard currentScore) {
 		try {
-			PreparedStatement stmt = con.prepareStatement(
-					"select action from markingActions where" +
-					"hand = ? AND scorecard = ?");
-			stmt.setInt(1, currentHand.getIndex());
-			stmt.setInt(2, currentScore.getIndex());
-			ResultSet res = stmt.executeQuery();
+			
+			this.suggestMarkStmt.setInt(1, currentHand.getIndex());
+			this.suggestMarkStmt.setInt(2, currentScore.getIndex());
+			ResultSet res = this.suggestMarkStmt.executeQuery();
 			if (res != null && res.next()) {
 				return new MarkingAction(res.getInt(1));
 			}
@@ -104,12 +148,11 @@ public class SQLiteActionsStorage implements ActionsStorage {
 	public void addMarkingAction(MarkingAction action, ScoreCard currentScore,
 			Hand hand) {
 		try {
-			PreparedStatement stmt = con.prepareStatement("insert into markingActions VALUES(?,?,?);");
 			
-			stmt.setInt(1, hand.getIndex());
-			stmt.setInt(2, currentScore.getIndex());
-			stmt.setInt(3, action.getIndex());
-			stmt.execute();
+			this.putMarkStmt.setInt(1, hand.getIndex());
+			this.putMarkStmt.setInt(2, currentScore.getIndex());
+			this.putMarkStmt.setInt(3, action.getIndex());
+			this.putMarkStmt.execute();
 		} catch (SQLException e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -118,12 +161,11 @@ public class SQLiteActionsStorage implements ActionsStorage {
 	public void addRollingAction(RollingAction action, ScoreCard currentScore,
 			Hand hand, int roll) {
 		try {
-			PreparedStatement stmt = con.prepareStatement("insert into rollingActions values (?, ?, ?, ?);");
-			stmt.setInt(1, hand.getIndex());
-			stmt.setInt(2, currentScore.getIndex());
-			stmt.setInt(3, roll);
-			stmt.setInt(4, action.getIndex());
-			stmt.execute();
+			this.putRollStmt.setInt(1, hand.getIndex());
+			this.putRollStmt.setInt(2, currentScore.getIndex());
+			this.putRollStmt.setInt(3, roll);
+			this.putRollStmt.setInt(4, action.getIndex());
+			this.putRollStmt.execute();
 		} catch (SQLException e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -132,12 +174,11 @@ public class SQLiteActionsStorage implements ActionsStorage {
 	public void putExpectedScore(double expected, ScoreCard currentScore,
 			Hand hand, int roll) {
 		try {
-			PreparedStatement stmt = con.prepareStatement("insert into expectedScores values (?, ?, ?, ?);");
-			stmt.setInt(1, hand.getIndex());
-			stmt.setInt(2, currentScore.getIndex());
-			stmt.setInt(3, roll);
-			stmt.setDouble(4, expected);
-			stmt.execute();
+			this.putExpectedStmt.setInt(1, hand.getIndex());
+			this.putExpectedStmt.setInt(2, currentScore.getIndex());
+			this.putExpectedStmt.setInt(3, roll);
+			this.putExpectedStmt.setDouble(4, expected);
+			this.putExpectedStmt.execute();
 		} catch (SQLException e) {
 			throw new IllegalArgumentException(e);
 		}
@@ -145,13 +186,10 @@ public class SQLiteActionsStorage implements ActionsStorage {
 
 	public double getExpectedScore(ScoreCard currentScore, Hand hand, int roll) {
 		try {
-			PreparedStatement stmt = con.prepareStatement(
-					"select expected from expectedScores where" +
-					"hand = ? AND scorecard = ? and roll = ?");
-			stmt.setInt(1, hand.getIndex());
-			stmt.setInt(2, currentScore.getIndex());
-			stmt.setInt(3, roll);
-			ResultSet res = stmt.executeQuery();
+			this.getExpectedStmt.setInt(1, hand.getIndex());
+			this.getExpectedStmt.setInt(2, currentScore.getIndex());
+			this.getExpectedStmt.setInt(3, roll);
+			ResultSet res = this.getExpectedStmt.executeQuery();
 			if (res != null && res.next()) {
 				return res.getDouble(1);
 			}
