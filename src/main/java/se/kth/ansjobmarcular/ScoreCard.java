@@ -1,8 +1,9 @@
 package se.kth.ansjobmarcular;
 
-import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
-public class ScoreCard implements Serializable {
+public class ScoreCard {
 	/* 64 << 15 + 2^15 = 2129919 */
 	public static final int	MAX_INDEX = 2129919;
 	private int	upperTotal;
@@ -11,6 +12,18 @@ public class ScoreCard implements Serializable {
 	public ScoreCard() {
 		upperTotal = 0;
 		filled = 0;
+	}
+	
+	public String getFilled() {
+		List<Category> checked = new LinkedList<Category>();
+		
+		for (int i = 0; i < 15; i++) {
+			if (((1 << i) & filled) > 0) {
+				checked.add(Category.values()[i]);
+			}
+		}
+		
+		return checked.toString();
 	}
 	
 	public ScoreCard(int filled, int upperTotal) {

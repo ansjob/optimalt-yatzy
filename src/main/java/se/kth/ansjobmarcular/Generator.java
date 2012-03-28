@@ -3,15 +3,14 @@ package se.kth.ansjobmarcular;
 import java.util.HashMap;
 
 public class Generator {
-	
-	
+
 	private HashMap<ScoreCard, Double>[][] expectedScores, workingVals;
-	
-	
+
+	@SuppressWarnings("unchecked")
 	public Generator() {
-		workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?,?>[4][253];
-		expectedScores = (HashMap<ScoreCard, Double>[][]) new HashMap<?,?>[4][253];
-		
+		workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][253];
+		expectedScores = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][253];
+
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 253; j++) {
 				workingVals[i][j] = new HashMap<ScoreCard, Double>();
@@ -37,13 +36,12 @@ public class Generator {
 				if (roll == 3) {
 					/* For every possible hand. */
 					for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-						double expected = Score.value(
-								Hand.getHand(hand), Category.values()[cat]);
-						//db.putExpectedScore(expected, sc, Hand.getHand(hand), roll);
+						double expected = Score.value(Hand.getHand(hand),
+								Category.values()[cat]);
 						expectedScores[3][hand].put(sc, expected);
-//						System.out.printf("%s: %s => %.2f\n",
-//								Category.values()[cat], Hand.getHand(hand)
-//										.toString(), expectedScores[3][hand].get(sc));
+						// System.out.printf("%s: %s => %.2f\n",
+						// Category.values()[cat], Hand.getHand(hand)
+						// .toString(), expectedScores[3][hand].get(sc));
 					}
 					continue;
 				}
@@ -57,8 +55,10 @@ public class Generator {
 						score = 0;
 						/* For every possible hand. */
 						for (int destHand = 1; destHand <= Hand.MAX_INDEX; destHand++) {
-							double expected = expectedScores[roll+1][destHand].get(sc);
-							score += Hand.getHand(hand).probability(Hand.getHand(destHand), mask)
+							double expected = expectedScores[roll + 1][destHand]
+									.get(sc);
+							score += Hand.getHand(hand).probability(
+									Hand.getHand(destHand), mask)
 									* expected;
 						}
 						/*
@@ -77,12 +77,12 @@ public class Generator {
 					 * Remember the expected score, and action for this
 					 * combination of holding.
 					 */
-//					db.putExpectedScore(max, sc, Hand.getHand(hand), roll);
+					// db.putExpectedScore(max, sc, Hand.getHand(hand), roll);
 					expectedScores[roll][hand].put(sc, max);
 					action = bestMask;
-//					System.out.printf("%s: %s roll: %d, action: %x => %.2f\n",
-//							Category.values()[cat], Hand.getHand(hand), roll,
-//							action, expectedScores[roll][hand].get(sc));
+					// System.out.printf("%s: %s roll: %d, action: %x => %.2f\n",
+					// Category.values()[cat], Hand.getHand(hand), roll,
+					// action, expectedScores[roll][hand].get(sc));
 					if (roll == 0)
 						break;
 				}
@@ -90,6 +90,7 @@ public class Generator {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public void generate() {
 		double max, score;
 		int bestMask, action;
@@ -98,21 +99,24 @@ public class Generator {
 		Category category, otherCat;
 
 		for (int filled = 13; filled >= 0; filled--) {
-			
-			workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?,?>[4][253];
+
+			workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][Hand.MAX_INDEX+1];
 			for (int i = 0; i < 4; i++) {
-				for (int j = 0; j < 253; j++) {
+				for (int j = 0; j <= Hand.MAX_INDEX; j++) {
 					workingVals[i][j] = new HashMap<ScoreCard, Double>();
 				}
 			}
-			
+
+			/* For every way the scorecard may be filled when we get here */
 			ways = Utils.allWaysToPut(filled, 15);
-			for (boolean[] way : ways) {/* For every way the scorecard may be filled when we get here */
+			for (boolean[] way : ways) {
+				/* Fill out the scorecard in this new way */
 				sc = new ScoreCard();
-				for (int i = 0; i < way.length; i++) {/* Fill out the scorecard in a new way*/
+				for (int i = 0; i < way.length; i++) {
 					if (way[i])
 						sc.fillScore(Category.values()[i]);
 				}
+				/* For every roll from 3 to 0 for this scorecard. */
 				for (int roll = 3; roll >= 0; roll--) {
 					/* If last roll. */
 					if (roll == 3) {
@@ -122,7 +126,7 @@ public class Generator {
 							Category bestCategory = null;
 							/* For every unfilled category. */
 							for (int cat = 1; cat <= 15; cat++) {
-								category = Category.values()[cat-1];
+								category = Category.values()[cat - 1];
 								if (sc.isFilled(category))
 									continue;
 
@@ -133,33 +137,62 @@ public class Generator {
 									e.printStackTrace();
 									return;
 								}
-								tmpSc.fillScore(Category.values()[cat-1]);
+								tmpSc.fillScore(Category.values()[cat - 1]);
 
 								/*
 								 * Calculate the expected score if filling
 								 * current category with the hand.
 								 */
 								score = Score.value(Hand.getHand(hand),
-										category) + expectedScores[0][1].get(tmpSc);
-								
+										category)
+										+ expectedScores[0][1].get(tmpSc);
+
 								if (score >= max) {
 									max = score;
-									bestCategory = Category.values()[cat-1];
+									bestCategory = Category.values()[cat - 1];
 								}
 							}
 							workingVals[3][hand].put(sc, max);
-							System.out.printf("%x: filling %s: %s => %.2f\n", sc.getIndex(), bestCategory, Hand.getHand(hand), max);
+							System.out.printf("%x: filling %s: %s => %.2f\n",
+									sc.getIndex(), bestCategory,
+									Hand.getHand(hand), max);
 						}
 						continue;
 					}
 
-					/* If roll 0-2 */
+					/* If roll 0-2 (TODO) */
+					/* For every hand. */
 					for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-						// TODO
+						max = 0;
+						bestMask = 0;
+						/* For every hold mask. */
+						for (int mask = 0; mask <= 0x1ff; mask++) {
+							score = 0;
+							/* For every possible outcome hand. */
+							for (int destHand = 1; destHand <= Hand.MAX_INDEX; destHand++) {
+								double expected = workingVals[roll + 1][destHand]
+										.get(sc);
+								score += Hand.getHand(hand).probability(
+										Hand.getHand(destHand), mask)
+										* expected;
+							}
+							if (score > max) {
+								max = score;
+								bestMask = mask;
+							}
+							if (roll == 0)
+								break;
+						}
+						workingVals[roll][hand].put(sc, max);
+						System.out.printf("%x: %s roll: %d, action: %x => %.2f\n",
+						sc.getIndex(), Hand.getHand(hand), roll,
+						bestMask, workingVals[roll][hand].get(sc));
+						if (roll == 0)
+							break;
 					}
 				}
 			}
-			
+
 			expectedScores = workingVals;
 		}
 	}

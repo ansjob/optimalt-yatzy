@@ -91,6 +91,15 @@ public class UtilsTest {
     		assertTrue(Arrays.equals(expected[i], actuals[i]));
     	}
     }
+    
+    @Test
+    public void testBinaryStrings() {
+    	assertEquals("11111111", Utils.maskToBinaryString(0xff));
+    	assertEquals("11101111", Utils.maskToBinaryString(239));
+    	assertEquals("10100011", Utils.maskToBinaryString(163));
+    	assertEquals("111111111", Utils.maskToBinaryString(0x1ff));
+    	assertEquals("0", Utils.maskToBinaryString(0));
+    }
 
 }
 

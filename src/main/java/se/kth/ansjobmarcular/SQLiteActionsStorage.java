@@ -199,7 +199,6 @@ public class SQLiteActionsStorage implements ActionsStorage {
 		}
 	}
 
-	@Override
 	public void clearDb() {
 		try {
 			Statement stmt = con.createStatement();
