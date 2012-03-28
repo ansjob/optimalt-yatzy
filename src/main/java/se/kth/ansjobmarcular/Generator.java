@@ -27,9 +27,13 @@ public class Generator {
 		double max, score;
 		int bestMask;
 
+		System.out.printf("┌");
+		for (int i = 0; i < 15; i++)
+			System.out.printf("-");
+		System.out.printf("┐\n│");
 		/* For every last (unfilled) category. */
-		for (int upperTotal = 0; upperTotal < 64; upperTotal++) {
-			for (int cat = 0; cat < 15; cat++) {
+		for (int cat = 0; cat < 15; cat++) {
+			for (int upperTotal = 0; upperTotal < 64; upperTotal++) {
 				ScoreCard sc = new ScoreCard();
 				sc.addScore(upperTotal);
 				for (Category c : Category.values()) {
@@ -98,7 +102,9 @@ public class Generator {
 					}
 				}
 			}
+			System.out.printf("#");
 		}
+		System.out.println("│");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -111,125 +117,135 @@ public class Generator {
 
 		/* For every round in the game (backwards). */
 		for (int filled = 13; filled >= 0; filled--) {
-
-			/* Initialize workingVals. */
-			workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][Hand.MAX_INDEX + 1];
-			for (int i = 0; i < 4; i++) {
-				for (int j = 0; j <= Hand.MAX_INDEX; j++) {
-					workingVals[i][j] = new HashMap<ScoreCard, Double>();
+			/* For every possible upperTotal score. */
+			for (int upperTotal = 0; upperTotal < 64; upperTotal++) {
+				/* Initialize workingVals. */
+				workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][Hand.MAX_INDEX + 1];
+				for (int i = 0; i < 4; i++) {
+					for (int j = 0; j <= Hand.MAX_INDEX; j++) {
+						workingVals[i][j] = new HashMap<ScoreCard, Double>();
+					}
 				}
-			}
 
-			/* For every way the scorecard may be filled when we get here */
-			ways = Utils.allWaysToPut(filled, 15);
-			for (boolean[] way : ways) {
-				/* Fill out the scorecard in this new way */
-				sc = new ScoreCard();
-				for (int i = 0; i < way.length; i++) {
-					if (way[i])
-						sc.fillScore(Category.values()[i]);
-				}
-				/* For every roll from 3 to 0 for this scorecard. */
-				for (int roll = 3; roll >= 0; roll--) {
-					/* If last roll. */
-					if (roll == 3) {
-						/* For every possible hand. */
-						for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-							max = 0;
-							byte bestCat = 0;
-							/* For every unfilled category. */
-							for (int cat = 1; cat <= 15; cat++) {
-								category = Category.values()[cat - 1];
-								if (sc.isFilled(category))
-									continue;
+				/* For every way the scorecard may be filled when we get here */
+				ways = Utils.allWaysToPut(filled, 15);
+				for (boolean[] way : ways) {
+					/* Fill out the scorecard in this new way */
+					sc = new ScoreCard();
+					sc.addScore(upperTotal);
+					for (int i = 0; i < way.length; i++) {
+						if (way[i])
+							sc.fillScore(Category.values()[i]);
+					}
+					/* For every roll from 3 to 0 for this scorecard. */
+					for (int roll = 3; roll >= 0; roll--) {
+						/* If last roll. */
+						if (roll == 3) {
+							/* For every possible hand. */
+							for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+								max = 0;
+								byte bestCat = 0;
+								/* For every unfilled category. */
+								for (int cat = 1; cat <= 15; cat++) {
+									category = Category.values()[cat - 1];
+									if (sc.isFilled(category))
+										continue;
 
-								/* Pretend to fill the category. */
-								try {
-									tmpSc = (ScoreCard) sc.clone();
-								} catch (CloneNotSupportedException e) {
-									e.printStackTrace();
-									return;
+									/* Pretend to fill the category. */
+									try {
+										tmpSc = (ScoreCard) sc.clone();
+									} catch (CloneNotSupportedException e) {
+										e.printStackTrace();
+										return;
+									}
+
+									/*
+									 * Calculate the expected score if filling
+									 * current category with the hand.
+									 */
+									score = tmpSc.value(Hand.getHand(hand),
+											category);
+
+									/*
+									 * If ONES-SIXES, take bonus into
+									 * consideration.
+									 */
+									if (cat <= 6) {
+										tmpSc.fillScore(category, tmpSc.value(
+												Hand.getHand(hand), category));
+									} else {
+										tmpSc.fillScore(category);
+									}
+
+									/* Add the expected score of the next state. */
+									score += expectedScores[0][1].get(tmpSc);
+
+									/* If this is the best score so far, remember what category was the optimal. */
+									if (score >= max) {
+										max = score;
+										bestCat = (byte) cat;
+									}
 								}
 
 								/*
-								 * Calculate the expected score if filling
-								 * current category with the hand.
+								 * Save the optimal expected score for this
+								 * state.
 								 */
-								score = tmpSc.value(Hand.getHand(hand),
-										category);
+								workingVals[3][hand].put(sc, max);
 
-								/* If ONES-SIXES, take bonus into consideration. */
-								if (cat <= 6) {
-									tmpSc.fillScore(category, tmpSc.value(
-											Hand.getHand(hand), category));
-								} else {
-									tmpSc.fillScore(category);
-								}
+								// System.out.printf("%x: filling %s: %s => %.2f\n",
+								// sc.getIndex(), bestCategory,
+								// Hand.getHand(hand), max);
 
-								score += expectedScores[0][1].get(tmpSc);
-
-								if (score >= max) {
-									max = score;
-									bestCat = (byte) cat;
-								}
+								/*
+								 * Save the optimal category to put the hand in
+								 * (the optimal action).
+								 */
+								actions[roll - 1][hand][sc.getIndex()] = bestCat;
 							}
-
-							/* Save the optimal expected score for this state. */
-							workingVals[3][hand].put(sc, max);
-
-							// System.out.printf("%x: filling %s: %s => %.2f\n",
-							// sc.getIndex(), bestCategory,
-							// Hand.getHand(hand), max);
-
-							/*
-							 * Save the optimal category to put the hand in (the
-							 * optimal action).
-							 */
-							actions[roll - 1][hand][sc.getIndex()] = bestCat;
+							continue;
 						}
-						continue;
-					}
 
-					/* If roll 0-2 (TODO) */
-					/* For every hand. */
-					for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-						max = 0;
-						bestMask = 0;
-						/* For every hold mask. */
-						for (int mask = 0; mask <= 0x1ff; mask++) {
-							score = 0;
-							/* For every possible outcome hand. */
-							for (int destHand = 1; destHand <= Hand.MAX_INDEX; destHand++) {
-								double expected = workingVals[roll + 1][destHand]
-										.get(sc);
-								score += Hand.getHand(hand).probability(
-										Hand.getHand(destHand), mask)
-										* expected;
+						/* If roll 0-2 */
+						/* For every hand. */
+						for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+							max = 0;
+							bestMask = 0;
+							/* For every hold mask. */
+							for (int mask = 0; mask <= 0x1ff; mask++) {
+								score = 0;
+								/* For every possible outcome hand. */
+								for (int destHand = 1; destHand <= Hand.MAX_INDEX; destHand++) {
+									double expected = workingVals[roll + 1][destHand]
+											.get(sc);
+									score += Hand.getHand(hand).probability(
+											Hand.getHand(destHand), mask)
+											* expected;
+								}
+								if (score > max) {
+									max = score;
+									bestMask = mask;
+								}
+								if (roll == 0)
+									break;
 							}
-							if (score > max) {
-								max = score;
-								bestMask = mask;
-							}
+
+							/* Save the optimal score for this state. */
+							workingVals[roll][hand].put(sc, max);
+
+							// System.out.printf("%x: %s roll: %d, action: %x => %.2f\n",
+							// sc.getIndex(), Hand.getHand(hand), roll,
+							// bestMask, workingVals[roll][hand].get(sc));
+
 							if (roll == 0)
 								break;
+
+							/* Save the optimal action for the state. */
+							actions[roll - 1][hand][sc.getIndex()] = (byte) bestMask;
 						}
-
-						/* Save the optimal score for this state. */
-						workingVals[roll][hand].put(sc, max);
-
-						// System.out.printf("%x: %s roll: %d, action: %x => %.2f\n",
-						// sc.getIndex(), Hand.getHand(hand), roll,
-						// bestMask, workingVals[roll][hand].get(sc));
-
-						if (roll == 0)
-							break;
-
-						/* Save the optimal action for the state. */
-						actions[roll - 1][hand][sc.getIndex()] = (byte) bestMask;
 					}
 				}
 			}
-
 			expectedScores = workingVals;
 		}
 	}
