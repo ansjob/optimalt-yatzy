@@ -40,7 +40,7 @@ public class Generator {
 				if (roll == 3) {
 					/* For every possible hand. */
 					for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-						double expected = Score.value(Hand.getHand(hand),
+						double expected = sc.value(Hand.getHand(hand),
 								Category.values()[cat]);
 						expectedScores[3][hand].put(sc, expected);
 						// System.out.printf("%s: %s => %.2f\n",
@@ -152,7 +152,7 @@ public class Generator {
 								 * Calculate the expected score if filling
 								 * current category with the hand.
 								 */
-								score = Score.value(Hand.getHand(hand),
+								score = sc.value(Hand.getHand(hand),
 										category)
 										+ expectedScores[0][1].get(tmpSc);
 
