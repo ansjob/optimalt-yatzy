@@ -3,11 +3,15 @@ package se.kth.ansjobmarcular;
 import java.util.HashMap;
 
 public class Generator {
+	
+	/* The array containing the optimal strategy. */
+	private byte[][][] actions;
 
 	private HashMap<ScoreCard, Double>[][] expectedScores, workingVals;
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
+		actions = new byte[3][Hand.MAX_INDEX+1][ScoreCard.MAX_INDEX+1];
 		workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][253];
 		expectedScores = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][253];
 
@@ -21,7 +25,7 @@ public class Generator {
 
 	public void generateBaseCases() {
 		double max, score;
-		int bestMask, action;
+		int bestMask;
 
 		/* For every last (unfilled) category. */
 		for (int cat = 0; cat < 15; cat++) {
@@ -73,18 +77,21 @@ public class Generator {
 						if (roll == 0)
 							break;
 					}
+					
 					/*
 					 * Remember the expected score, and action for this
 					 * combination of holding.
 					 */
-					// db.putExpectedScore(max, sc, Hand.getHand(hand), roll);
 					expectedScores[roll][hand].put(sc, max);
-					action = bestMask;
 					// System.out.printf("%s: %s roll: %d, action: %x => %.2f\n",
 					// Category.values()[cat], Hand.getHand(hand), roll,
 					// action, expectedScores[roll][hand].get(sc));
+					
 					if (roll == 0)
 						break;
+					
+					/* Save the optimal action. */
+					actions[roll-1][hand][sc.getIndex()] = (byte)bestMask;
 				}
 			}
 		}
@@ -93,13 +100,15 @@ public class Generator {
 	@SuppressWarnings("unchecked")
 	public void generate() {
 		double max, score;
-		int bestMask, action;
+		int bestMask;
 		boolean[][] ways;
 		ScoreCard sc, tmpSc;
-		Category category, otherCat;
+		Category category;
 
+		/* For every round in the game (backwards). */
 		for (int filled = 13; filled >= 0; filled--) {
 
+			/* Initialize workingVals. */
 			workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][Hand.MAX_INDEX+1];
 			for (int i = 0; i < 4; i++) {
 				for (int j = 0; j <= Hand.MAX_INDEX; j++) {
@@ -123,7 +132,7 @@ public class Generator {
 						/* For every possible hand. */
 						for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
 							max = 0;
-							Category bestCategory = null;
+							byte bestCat = 0;
 							/* For every unfilled category. */
 							for (int cat = 1; cat <= 15; cat++) {
 								category = Category.values()[cat - 1];
@@ -149,13 +158,17 @@ public class Generator {
 
 								if (score >= max) {
 									max = score;
-									bestCategory = Category.values()[cat - 1];
+									bestCat = (byte)cat;
 								}
 							}
+							/* Save the optimal expected score for this state. */
 							workingVals[3][hand].put(sc, max);
-							System.out.printf("%x: filling %s: %s => %.2f\n",
-									sc.getIndex(), bestCategory,
-									Hand.getHand(hand), max);
+							//System.out.printf("%x: filling %s: %s => %.2f\n",
+							//		sc.getIndex(), bestCategory,
+							//		Hand.getHand(hand), max);
+							
+							/* Save the optimal category to put the hand in (the optimal action). */
+							actions[roll-1][hand][sc.getIndex()] = bestCat;
 						}
 						continue;
 					}
@@ -183,12 +196,19 @@ public class Generator {
 							if (roll == 0)
 								break;
 						}
+						
+						/* Save the optimal score for this state. */
 						workingVals[roll][hand].put(sc, max);
-						System.out.printf("%x: %s roll: %d, action: %x => %.2f\n",
-						sc.getIndex(), Hand.getHand(hand), roll,
-						bestMask, workingVals[roll][hand].get(sc));
+						
+						//System.out.printf("%x: %s roll: %d, action: %x => %.2f\n",
+						//sc.getIndex(), Hand.getHand(hand), roll,
+						//bestMask, workingVals[roll][hand].get(sc));
+						
 						if (roll == 0)
 							break;
+						
+						/* Save the optimal action for the state. */
+						actions[roll-1][hand][sc.getIndex()] = (byte)bestMask;
 					}
 				}
 			}

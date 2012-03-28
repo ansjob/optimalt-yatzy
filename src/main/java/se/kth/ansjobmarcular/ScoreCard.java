@@ -152,35 +152,6 @@ public class ScoreCard {
 		return "" + getIndex();
 	}
 	
-	public static final ScoreCard[] scoreCards;
-	static {
-		scoreCards = new ScoreCard[ScoreCard.MAX_INDEX + 1];
-		//generate();
-	}
-	
-	private static void generate() {
-		ScoreCard sc;
-		boolean[][] ways;
-		int idx = 0;
-		
-		for (int i = 0; i <= 15; i++) {
-			for (int j = 0; j <= 64; j++) {
-				ways = Utils.allWaysToPut(i, 15);
-				for (boolean[] way : ways) {
-					sc = new ScoreCard();
-					sc.addScore(j);
-					for (int k = 0; k < way.length; k++) {
-						if (way[k])
-							sc.fillScore(Category.values()[k]);
-					}
-					if (scoreCards[idx] != null)
-						throw new RuntimeException();
-					scoreCards[idx++] = sc;
-				}
-			}
-		}
-	}
-	
 	@Override
 	public int hashCode() {
 		return getIndex();

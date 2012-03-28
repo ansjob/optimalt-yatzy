@@ -21,6 +21,7 @@ public class SQLiteActionsStorage implements ActionsStorage {
 		}
 	}
 
+	@SuppressWarnings("unused")
 	private static boolean loadedDriver = false;
 
 	private static final String FILE_NAME = "optimal-yatzy.db";
@@ -42,7 +43,7 @@ public class SQLiteActionsStorage implements ActionsStorage {
 	private static Connection getDb() throws SQLException {
 		SQLiteConfig config = new SQLiteConfig();
 		config.setSynchronous(SynchronousMode.OFF);
-		return DriverManager.getConnection("jdbc:sqlite:");
+		return DriverManager.getConnection("jdbc:sqlite:" + FILE_NAME);
 	}
 	
 	public SQLiteActionsStorage() {
