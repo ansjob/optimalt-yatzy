@@ -5,38 +5,38 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ScoreCard {
-	/* 64 << 15 + 2^15 = 2129919 */
-	public static final int	MAX_INDEX = 2064321;
-	private int	upperTotal;
-	private int	filled;
-	
+	/* 63 << 15 + 2^15 = 2129919 */
+	public static final int MAX_INDEX = 2097151;
+	private int upperTotal;
+	private int filled;
+
 	public ScoreCard() {
 		upperTotal = 0;
 		filled = 0;
 	}
-	
+
 	public String getFilled() {
 		List<Category> checked = new LinkedList<Category>();
-		
+
 		for (int i = 0; i < 15; i++) {
 			if (((1 << i) & filled) > 0) {
 				checked.add(Category.values()[i]);
 			}
 		}
-		
+
 		return checked.toString();
 	}
-	
+
 	public ScoreCard(int filled, int upperTotal) {
 		this.filled = filled;
 		this.upperTotal = upperTotal;
 	}
-	
+
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
 		return new ScoreCard(filled, upperTotal);
 	}
-	
+
 	public boolean isFilled(Category cat) {
 		switch (cat) {
 		case ONES:
@@ -73,7 +73,7 @@ public class ScoreCard {
 			return false;
 		}
 	}
-	
+
 	public int getUpper() {
 		return upperTotal;
 	}
@@ -83,11 +83,11 @@ public class ScoreCard {
 		if (upperTotal > 63)
 			upperTotal = 63;
 	}
-	
+
 	public void fillScore(Category cat) {
 		fillScore(cat, 0);
 	}
-	
+
 	public void fillScore(Category cat, int score) {
 		switch (cat) {
 		case ONES:
@@ -143,33 +143,32 @@ public class ScoreCard {
 			break;
 		}
 	}
-	
+
 	public int getIndex() {
-		return ((byte)upperTotal << 15) + filled;
+		return ((0x3f & upperTotal) << 15) | (0x7FFF & filled);
 	}
-	
+
 	@Override
 	public String toString() {
 		return "" + getIndex();
 	}
-	
+
 	@Override
 	public int hashCode() {
 		return getIndex();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof ScoreCard) {
-			return ((ScoreCard)obj).getIndex() == this.getIndex();
+			return ((ScoreCard) obj).getIndex() == this.getIndex();
 		}
 		return false;
 	}
-	
-	
 
 	/**
-	 * Calculate the score value for a given hand in the given score type.
+	 * Calculate the score value for a given hand in the given score type,
+	 * taking into consideration how the scorecard has been filled in so far.
 	 * 
 	 * @param hand
 	 *            The hand to be evaluated.
@@ -179,6 +178,8 @@ public class ScoreCard {
 	 * @return The numeric score of the hand, if filled in as the given type.
 	 */
 	public int value(Hand hand, Category sp) {
+		if (isFilled(sp))
+			throw new RuntimeException("Tried to score a category that was previously filled in. (" + sp + ")");
 		switch (sp) {
 		case ONES:
 		case TWOS:
@@ -227,7 +228,7 @@ public class ScoreCard {
 	 * @return Score.
 	 */
 	private int scoreNumbers(Hand hand, Category cat) {
-		int		score;
+		int score;
 		switch (cat) {
 		case ONES:
 			score = count(hand, 1);

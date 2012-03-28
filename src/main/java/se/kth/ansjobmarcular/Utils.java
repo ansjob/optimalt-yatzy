@@ -13,7 +13,7 @@ import org.apache.commons.math.util.MathUtils;
 public class Utils {
 
 	public static String maskToBinaryString(int mask) {
-		final int LEN = 15;
+		final int LEN = 32;
 		boolean found = false;
 
 		StringBuilder sb = new StringBuilder(LEN);

@@ -13,9 +13,20 @@ public class ScoreCardTest {
 		sc = new ScoreCard();
 	}
 
+
 	@Test
-	public void testScoreCard() {
-		ScoreCard sc = new ScoreCard();
+	public void testIndexLimit() {
+		for (Category cat : Category.values()) {
+			sc.fillScore(cat);
+		}
+		sc.addScore(63);
+		assertEquals(ScoreCard.MAX_INDEX, sc.getIndex());
+		assertEquals("111111111111111111111", Utils.maskToBinaryString(sc.getIndex()));
+		sc = new ScoreCard();
+	}
+	
+	@Test
+	public void testScoreCard() {		
 		assertEquals(0, sc.getIndex());
 
 		sc.fillScore(Category.HOUSE);
@@ -26,6 +37,13 @@ public class ScoreCardTest {
 
 		sc.fillScore(Category.ONES, 500);
 		assertEquals(2080773, sc.getIndex());
+		
+		sc = new ScoreCard();
+		sc.fillScore(Category.ONES, 0);
+		ScoreCard sc2 = new ScoreCard();
+		sc2.addScore(1);
+		assertTrue(sc.getIndex() != sc2.getIndex());
+		
 	}
 
 	@Test
