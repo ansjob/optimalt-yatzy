@@ -31,8 +31,8 @@ public class Generator {
 
 		System.out.printf("┌");
 		for (int i = 0; i < 15; i++)
-			System.out.printf("-");
-		System.out.printf("┐\n│");
+			System.out.printf("─");
+		System.out.printf("┐\n ");
 		/* For every last (unfilled) category. */
 		for (int cat = 0; cat < 15; cat++) {
 			for (int upperTotal = 0; upperTotal < 64; upperTotal++) {
@@ -67,11 +67,13 @@ public class Generator {
 							score = 0;
 							/* For every possible hand. */
 							for (int destHand = 1; destHand <= Hand.MAX_INDEX; destHand++) {
+								double prob = Hand.getHand(hand).probability(
+										Hand.getHand(destHand), mask);
+								if (prob == 0)
+									continue;
 								double expected = expectedScores[roll + 1][destHand]
 										.get(sc);
-								score += Hand.getHand(hand).probability(
-										Hand.getHand(destHand), mask)
-										* expected;
+								score += prob * expected;
 							}
 							/*
 							 * If this score beats the maximum, remember which
@@ -107,7 +109,7 @@ public class Generator {
 			}
 			System.out.printf("#");
 		}
-		System.out.println("│");
+		System.out.println();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -120,15 +122,17 @@ public class Generator {
 
 		/* For every round in the game (backwards). */
 		for (int filled = 13; filled >= 0; filled--) {
-			/* For every possible upperTotal score. */
-			for (int upperTotal = 0; upperTotal < 64; upperTotal++) {
-				/* Initialize workingVals. */
-				workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][Hand.MAX_INDEX + 1];
-				for (int i = 0; i < 4; i++) {
-					for (int j = 0; j <= Hand.MAX_INDEX; j++) {
-						workingVals[i][j] = new HashMap<ScoreCard, Double>();
-					}
+			
+			/* Initialize workingVals. */
+			workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][Hand.MAX_INDEX + 1];
+			for (int i = 0; i < 4; i++) {
+				for (int j = 0; j <= Hand.MAX_INDEX; j++) {
+					workingVals[i][j] = new HashMap<ScoreCard, Double>();
 				}
+			}
+			
+			/* For every possible upperTotal score. */
+			for (int upperTotal = 0; upperTotal < 6; upperTotal++) {
 
 				/* For every way the scorecard may be filled when we get here */
 				ways = Utils.allWaysToPut(filled, 15);
@@ -183,7 +187,10 @@ public class Generator {
 									/* Add the expected score of the next state. */
 									score += expectedScores[0][1].get(tmpSc);
 
-									/* If this is the best score so far, remember what category was the optimal. */
+									/*
+									 * If this is the best score so far,
+									 * remember what category was the optimal.
+									 */
 									if (score >= max) {
 										max = score;
 										bestCat = (byte) cat;
@@ -251,7 +258,13 @@ public class Generator {
 					}
 				}
 			}
+			/*
+			 * Forget the last round's expected scores, we don't need them
+			 * anymore. Also, make the (now complete) workingVals the
+			 * expectedScores for the next round.
+			 */
 			expectedScores = workingVals;
+			System.gc();
 		}
 	}
 }

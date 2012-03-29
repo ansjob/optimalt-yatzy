@@ -44,6 +44,13 @@ public class ScoreCardTest {
 		sc2.addScore(1);
 		assertTrue(sc.getIndex() != sc2.getIndex());
 		
+		sc.addScore(20);
+		assertEquals(671744, sc.getIndex());	
+		sc.addScore(1);
+		assertEquals(704512, sc.getIndex());
+		sc.fillScore(Category.YATZY);
+		assertEquals(704513, sc.getIndex());
+		
 	}
 
 	@Test
