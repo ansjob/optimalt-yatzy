@@ -12,6 +12,7 @@ import java.util.Map;
  */
 public class Hand {
 	public static final int MAX_INDEX = 252;
+	public static final int MAX_MASK = 0x1ff;
 	public static final int SIZE = 5;
 	private final int dice[];
 

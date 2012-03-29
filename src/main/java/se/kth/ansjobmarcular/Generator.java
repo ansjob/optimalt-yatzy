@@ -5,13 +5,15 @@ import java.util.HashMap;
 public class Generator {
 
 	/* The array containing the optimal strategy. */
-	private byte[][][] actions;
+	//private byte[][][] actions;
 
 	private HashMap<ScoreCard, Double>[][] expectedScores, workingVals;
+	
+	private ActionsStorage db = new FileActionsStorage();
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
-		actions = new byte[3][Hand.MAX_INDEX + 1][ScoreCard.MAX_INDEX + 1];
+	//	actions = new byte[3][Hand.MAX_INDEX + 1][ScoreCard.MAX_INDEX + 1];
 		workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][253];
 		expectedScores = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][253];
 
@@ -98,7 +100,8 @@ public class Generator {
 							break;
 
 						/* Save the optimal action. */
-						actions[roll - 1][hand][sc.getIndex()] = (byte) bestMask;
+						//actions[roll - 1][hand][sc.getIndex()] = (byte) bestMask;
+						db.addRollingAction(new RollingAction(bestMask), sc, Hand.getHand(hand), roll-1);
 					}
 				}
 			}
@@ -201,7 +204,8 @@ public class Generator {
 								 * Save the optimal category to put the hand in
 								 * (the optimal action).
 								 */
-								actions[roll - 1][hand][sc.getIndex()] = bestCat;
+								//actions[roll - 1][hand][sc.getIndex()] = bestCat;
+								db.addMarkingAction(new MarkingAction(bestCat), sc, Hand.getHand(hand));
 							}
 							continue;
 						}
@@ -241,7 +245,8 @@ public class Generator {
 								break;
 
 							/* Save the optimal action for the state. */
-							actions[roll - 1][hand][sc.getIndex()] = (byte) bestMask;
+							//actions[roll - 1][hand][sc.getIndex()] = (byte) bestMask;
+							db.addRollingAction(new RollingAction(bestMask), sc, Hand.getHand(hand), roll -1);
 						}
 					}
 				}
