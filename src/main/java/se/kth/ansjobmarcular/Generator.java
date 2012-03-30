@@ -132,7 +132,7 @@ public class Generator {
 			}
 			
 			/* For every possible upperTotal score. */
-			for (int upperTotal = 0; upperTotal < 6; upperTotal++) {
+			for (int upperTotal = 0; upperTotal < 64; upperTotal++) {
 
 				/* For every way the scorecard may be filled when we get here */
 				ways = Utils.allWaysToPut(filled, 15);
