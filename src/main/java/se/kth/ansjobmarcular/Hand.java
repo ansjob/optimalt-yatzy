@@ -8,9 +8,9 @@ import org.apache.commons.math.util.MathUtils;
 
 /**
  * The hand class represents the 5 dices in a set state.
- * 
+ *
  * @author Marcus
- * 
+ *
  */
 public class Hand {
 	public static final int MAX_INDEX = 252;
@@ -58,11 +58,11 @@ public class Hand {
 				tmp[idx++] = i + 1;
 			}
 		}
-		
+
 		outs = 0;
 		for (int sum = rolled; sum <= rolled * 6; sum++) {
 			for (int die = 0; die < rolled; die++) {
-				
+
 			}
 			res[outs++] = new Hand(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4]);
 		}
@@ -79,7 +79,7 @@ public class Hand {
 	}
 
 	public static Hand getHand(int index) {
-		return getHands.get(index);
+		return getHands[index];
 	}
 
 	@Override
@@ -141,10 +141,10 @@ public class Hand {
 
 	private static final int[] factorial = { 1, 1, 2, 6, 24, 120, 720 };
 
-	private static final Map<Integer, Hand> getHands;
+	private static final Hand[] getHands;
 	private static final Map<Hand, Integer> getIndexes;
 	static {
-		getHands = new HashMap<Integer, Hand>();
+		getHands = new Hand[MAX_INDEX +1];
 		getIndexes = new HashMap<Hand, Integer>();
 		generate();
 	}
@@ -172,7 +172,7 @@ public class Hand {
 						for (e = d; e <= 6; e++) {
 							i++;
 							Hand h = new Hand(a, b, c, d, e);
-							getHands.put(i, h);
+							getHands[i] = h;
 							getIndexes.put(h, i);
 						}
 					}

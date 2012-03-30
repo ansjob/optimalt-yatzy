@@ -1,6 +1,13 @@
 package se.kth.ansjobmarcular;
 
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import se.kth.ansjobmarcular.concurrency.basecases.BaseFinalHand;
+import se.kth.ansjobmarcular.concurrency.basecases.BaseRolls;
 
 public class Generator {
 
@@ -8,8 +15,10 @@ public class Generator {
 	//private byte[][][] actions;
 
 	private HashMap<ScoreCard, Double>[][] expectedScores, workingVals;
-	
+
 	private ActionsStorage db = new FileActionsStorage();
+
+    private ExecutorService runner = Executors.newCachedThreadPool();
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
@@ -25,7 +34,8 @@ public class Generator {
 		}
 	}
 
-	public void generateBaseCases() {
+	public void generateBaseCases() throws InterruptedException {
+        long startTime = System.currentTimeMillis();
 		double max, score;
 		int bestMask;
 
@@ -46,70 +56,33 @@ public class Generator {
 				for (int roll = 3; roll >= 0; roll--) {
 					/* If last roll. */
 					if (roll == 3) {
-						/* For every possible hand. */
+                        List<Callable<Void>> handExecutions = new LinkedList<Callable<Void>>();
+                        /* For every possible hand. */
 						for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-							double expected = sc.value(Hand.getHand(hand),
-									Category.values()[cat]);
-							expectedScores[3][hand].put(sc, expected);
-							// System.out.printf("%s: %s => %.2f\n",
-							// Category.values()[cat], Hand.getHand(hand)
-							// .toString(), expectedScores[3][hand].get(sc));
+                            handExecutions.add(
+                                new BaseFinalHand(
+                                    sc, hand, cat, expectedScores, workingVals)
+                                );
 						}
+                        runner.invokeAll(handExecutions);
+                        System.out.printf("Generated all base cases for %s with upperTotal %d\n",
+                                Category.values()[cat], upperTotal);
 						continue;
 					}
 
+                    List<Callable<Void>> rollExecutions = new LinkedList<Callable<Void>>();
 					/* If roll 0-2 */
 					for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-						max = 0;
-						bestMask = 0;
-						/* For every possible combination of holding the dice. */
-						for (int mask = 0; mask <= 0x1F; mask++) {
-							score = 0;
-							/* For every possible hand. */
-							for (int destHand = 1; destHand <= Hand.MAX_INDEX; destHand++) {
-								double prob = Hand.getHand(hand).probability(
-										Hand.getHand(destHand), mask);
-								if (prob == 0)
-									continue;
-								double expected = expectedScores[roll + 1][destHand]
-										.get(sc);
-								score += prob * expected;
-							}
-							/*
-							 * If this score beats the maximum, remember which
-							 * dice to hold.
-							 */
-							if (score >= max) {
-								max = score;
-								bestMask = mask;
-							}
-							/* You can't hold/save dice you never rolled. */
-							if (roll == 0)
-								break;
-						}
-
-						/*
-						 * Remember the expected score, and action for this
-						 * combination of holding.
-						 */
-						expectedScores[roll][hand].put(sc, max);
-
-						// System.out.printf("%s: %s roll: %d, action: %x => %.2f\n",
-						// Category.values()[cat], Hand.getHand(hand), roll,
-						// action, expectedScores[roll][hand].get(sc));
-
-						if (roll == 0)
-							break;
-
-						/* Save the optimal action. */
-						//actions[roll - 1][hand][sc.getIndex()] = (byte) bestMask;
-						db.addRollingAction(new RollingAction(bestMask), sc, Hand.getHand(hand), roll-1);
+						rollExecutions.add(new BaseRolls(roll, db, sc, hand, cat, expectedScores, workingVals));
 					}
+                    runner.invokeAll(rollExecutions);
 				}
 			}
 			System.out.printf("#");
 		}
 		System.out.println();
+        long time = System.currentTimeMillis() - startTime;
+        System.out.printf("Generated base cases in %d ms\n", time);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -122,7 +95,7 @@ public class Generator {
 
 		/* For every round in the game (backwards). */
 		for (int filled = 13; filled >= 0; filled--) {
-			
+
 			/* Initialize workingVals. */
 			workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][Hand.MAX_INDEX + 1];
 			for (int i = 0; i < 4; i++) {
@@ -130,7 +103,7 @@ public class Generator {
 					workingVals[i][j] = new HashMap<ScoreCard, Double>();
 				}
 			}
-			
+
 			/* For every possible upperTotal score. */
 			for (int upperTotal = 0; upperTotal < 64; upperTotal++) {
 
