@@ -12,17 +12,17 @@ import se.kth.ansjobmarcular.concurrency.basecases.BaseRolls;
 public class Generator {
 
 	/* The array containing the optimal strategy. */
-	//private byte[][][] actions;
+	// private byte[][][] actions;
 
 	private HashMap<ScoreCard, Double>[][] expectedScores, workingVals;
 
 	private ActionsStorage db = new FileActionsStorage();
 
-    private ExecutorService runner = Executors.newCachedThreadPool();
+	private ExecutorService runner = Executors.newCachedThreadPool();
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
-	//	actions = new byte[3][Hand.MAX_INDEX + 1][ScoreCard.MAX_INDEX + 1];
+		// actions = new byte[3][Hand.MAX_INDEX + 1][ScoreCard.MAX_INDEX + 1];
 		workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][253];
 		expectedScores = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][253];
 
@@ -35,7 +35,7 @@ public class Generator {
 	}
 
 	public void generateBaseCases() throws InterruptedException {
-        long startTime = System.currentTimeMillis();
+		long startTime = System.currentTimeMillis();
 		double max, score;
 		int bestMask;
 
@@ -45,44 +45,58 @@ public class Generator {
 		System.out.printf("┐\n ");
 		/* For every last (unfilled) category. */
 		for (int cat = 0; cat < 15; cat++) {
-			for (int upperTotal = 0; upperTotal < 64; upperTotal++) {
-				ScoreCard sc = new ScoreCard();
-				sc.addScore(upperTotal);
-				for (Category c : Category.values()) {
-					if (c != Category.values()[cat])
-						sc.fillScore(c);
-				}
-				/* For every roll during this round. */
-				for (int roll = 3; roll >= 0; roll--) {
-					/* If last roll. */
-					if (roll == 3) {
-                        List<Callable<Void>> handExecutions = new LinkedList<Callable<Void>>();
-                        /* For every possible hand. */
-						for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-                            handExecutions.add(
-                                new BaseFinalHand(
-                                    sc, hand, cat, expectedScores, workingVals)
-                                );
-						}
-                        runner.invokeAll(handExecutions);
-                        System.out.printf("Generated all base cases for %s with upperTotal %d\n",
-                                Category.values()[cat], upperTotal);
-						continue;
-					}
-
-                    List<Callable<Void>> rollExecutions = new LinkedList<Callable<Void>>();
-					/* If roll 0-2 */
-					for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-						rollExecutions.add(new BaseRolls(roll, db, sc, hand, cat, expectedScores, workingVals));
-					}
-                    runner.invokeAll(rollExecutions);
+			/* The upper total only matters for the first six categories */
+			if (cat < 6) {
+				for (int upperTotal = 0; upperTotal <= 63; upperTotal++) {
+					generateBaseCase(cat, upperTotal);
 				}
 			}
+			/* For the other ones, we can generate it as if it was 0, and
+			 * copy the results to the other situations. All we need to remember
+			 * is that if we reach the final round, and have something other
+			 * than 1-6 left, we just pretend upperTotal is 0 */
+			generateBaseCase(cat, 0);
 			System.out.printf("#");
 		}
 		System.out.println();
-        long time = System.currentTimeMillis() - startTime;
-        System.out.printf("Generated base cases in %d ms\n", time);
+		long time = System.currentTimeMillis() - startTime;
+		System.out.printf("Generated base cases in %d ms\n", time);
+	}
+
+	protected void generateBaseCase(int cat, int upperTotal)
+			throws InterruptedException {
+		ScoreCard sc = new ScoreCard();
+		sc.addScore(upperTotal);
+		for (Category c : Category.values()) {
+			if (c != Category.values()[cat])
+				sc.fillScore(c);
+		}
+		
+		/* For every roll during this round. */
+		for (int roll = 3; roll >= 0; roll--) {
+			/* If last roll. */
+			if (roll == 3) {
+				List<Callable<Void>> handExecutions = new LinkedList<Callable<Void>>();
+				/* For every possible hand. */
+				for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+					handExecutions.add(new BaseFinalHand(sc, hand, cat,
+							expectedScores, workingVals));
+				}
+				runner.invokeAll(handExecutions);
+				continue;
+			}
+
+			List<Callable<Void>> rollExecutions = new LinkedList<Callable<Void>>();
+			/* If roll 0-2 */
+			for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+				rollExecutions.add(new BaseRolls(roll, db, sc, hand, cat,
+						expectedScores, workingVals));
+			}
+			runner.invokeAll(rollExecutions);
+		}
+		System.out.printf(
+				"Generated all base cases for %s with upperTotal %d\n",
+				Category.values()[cat], upperTotal);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -184,8 +198,10 @@ public class Generator {
 								 * Save the optimal category to put the hand in
 								 * (the optimal action).
 								 */
-								//actions[roll - 1][hand][sc.getIndex()] = bestCat;
-								db.addMarkingAction(new MarkingAction(bestCat), sc, Hand.getHand(hand));
+								// actions[roll - 1][hand][sc.getIndex()] =
+								// bestCat;
+								db.addMarkingAction(new MarkingAction(bestCat),
+										sc, Hand.getHand(hand));
 							}
 							continue;
 						}
@@ -225,8 +241,10 @@ public class Generator {
 								break;
 
 							/* Save the optimal action for the state. */
-							//actions[roll - 1][hand][sc.getIndex()] = (byte) bestMask;
-							db.addRollingAction(new RollingAction(bestMask), sc, Hand.getHand(hand), roll -1);
+							// actions[roll - 1][hand][sc.getIndex()] = (byte)
+							// bestMask;
+							db.addRollingAction(new RollingAction(bestMask),
+									sc, Hand.getHand(hand), roll - 1);
 						}
 					}
 				}

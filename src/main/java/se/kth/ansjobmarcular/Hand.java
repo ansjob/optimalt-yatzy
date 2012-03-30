@@ -1,7 +1,9 @@
 package se.kth.ansjobmarcular;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.math.util.MathUtils;
@@ -10,6 +12,7 @@ import org.apache.commons.math.util.MathUtils;
  * The hand class represents the 5 dices in a set state.
  *
  * @author Marcus
+ * @author Andreas Sjöberg
  *
  */
 public class Hand {
@@ -29,42 +32,58 @@ public class Hand {
 	}
 
 	public Hand[] getPossibleOutcomes(int holdMask) {
-		int rolled = 0;
-		int outcomes, outs;
+		int outcomes;
 		int[] counts = new int[6];
-		int[] tmp = new int[5];
 		Hand[] res;
+		List<Integer> rolledIdxs = new ArrayList<Integer>(5);
 
 		/* Count the held, and the number of rolled dice. */
 		for (int i = 0; i < 5; i++) {
-			if ((holdMask & (16 >> i)) > 0)
+			if ((holdMask & (16 >> i)) > 0){
 				counts[this.dice[i] - 1]++;
-			else
-				rolled++;
+			}
+			else{
+				rolledIdxs.add(i);
+			}
 		}
 
 		/* If all dice are held, there's only one outcome (the current hand). */
-		if (rolled == 0)
+		if (rolledIdxs.size() == 0)
 			return new Hand[] { this };
 
 		/* Calculate how many different outcomes there are. */
-		outcomes = (int) MathUtils.binomialCoefficient(6, rolled);
+		outcomes = (int) MathUtils.binomialCoefficient(rolledIdxs.size() +5, 5);
 		res = new Hand[outcomes];
-
-		/* Prepare the buffer that will be used to fill the outcome array with. */
-		int idx = 0;
-		for (int i = 0; i < 6; i++) {
-			for (int j = 0; j < counts[i]; j++) {
-				tmp[idx++] = i + 1;
-			}
+		
+		/* Initialize a buffer with 1's for the dice to be rolled.*/
+		int[] prevBuf = Arrays.copyOf(dice, 5);
+		for (Integer rolledIdx : rolledIdxs) {
+			prevBuf[rolledIdx] = 1;
 		}
+		/* Sort the 1's to the head */
+		Arrays.sort(prevBuf);
+		/* The first possible outcome is generated. Let's save it */
+		res[0] = new Hand(prevBuf[0], prevBuf[1], prevBuf[2], prevBuf[3], prevBuf[4]);
+		
+		for (int outcome = 1; outcome<outcomes; outcome++) {
+			int[] buf = Arrays.copyOf(prevBuf, 5);
 
-		outs = 0;
-		for (int sum = rolled; sum <= rolled * 6; sum++) {
-			for (int die = 0; die < rolled; die++) {
-
+			/* Now let's fill the first n dice with something smart.
+			 * we want to go from something like 1, 1, 1 -> 2, 1, 1
+			 * or 6, 5, 5 -> 6, 6, 5 -> 6, 6, 6 */
+			buf[0]++;
+			for (int i = 0 ; i < rolledIdxs.size(); i++) {
+				if (buf[i] > 6){
+					buf[i+1]++;
+					for (int j = i; j >=0; j--) {
+						buf[j] = buf[i+1];
+					}
+				}
 			}
-			res[outs++] = new Hand(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4]);
+			
+			prevBuf = Arrays.copyOf(buf, 5);
+			Arrays.sort(buf);
+			res[outcome] = new Hand(buf[0], buf[1], buf[2], buf[3], buf[4]);
 		}
 
 		return res;

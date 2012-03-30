@@ -1,11 +1,11 @@
 package se.kth.ansjobmarcular;
 
 /**
- * 
- * 
+ *
+ *
  */
 public class App {
-	public static void main(String[] args) throws ClassNotFoundException {
+	public static void main(String[] args) throws ClassNotFoundException, InterruptedException {
 		Class.forName("se.kth.ansjobmarcular.Hand");
 
 		Generator gen = new Generator();

@@ -36,8 +36,42 @@ public class HandTest {
 				"[[1, 1, 2, 3, 4], [1, 2, 2, 3, 4], [1, 2, 3, 3, 4], [1, 2, 3, 4, 4], [1, 2, 3, 4, 5], [1, 2, 3, 4, 6]]",
 				Arrays.toString(hand.getPossibleOutcomes(30)));
 
-		assertEquals(
-				"[[1, 1, 2, 3, 4], [1, 2, 2, 3, 4], [1, 2, 3, 3, 4], [1, 2, 3, 4, 4], [1, 2, 3, 4, 5], [1, 2, 3, 4, 6]]",
-				Arrays.toString(hand.getPossibleOutcomes(28)));
+	}
+	
+	@Test
+	public void test2Outcomes() {
+		Hand hand = new Hand(1,1,1,1,1);
+		int mask = 0x1c; //roll two last dice
+		String expected = 
+				"[" +
+						"[1, 1, 1, 1, 1], " +
+						"[1, 1, 1, 1, 2], " +
+						"[1, 1, 1, 1, 3], " +
+						"[1, 1, 1, 1, 4], " +
+						"[1, 1, 1, 1, 5], " +
+						"[1, 1, 1, 1, 6], " +
+						"[1, 1, 1, 2, 2], " +
+						"[1, 1, 1, 2, 3], " +
+						"[1, 1, 1, 2, 4], " +
+						"[1, 1, 1, 2, 5], " +
+						"[1, 1, 1, 2, 6], " +
+						"[1, 1, 1, 3, 3], " +
+						"[1, 1, 1, 3, 4], " +
+						"[1, 1, 1, 3, 5], " +
+						"[1, 1, 1, 3, 6], " +
+						"[1, 1, 1, 4, 4], " +
+						"[1, 1, 1, 4, 5], " +
+						"[1, 1, 1, 4, 6], " +
+						"[1, 1, 1, 5, 5], " +
+						"[1, 1, 1, 5, 6], " +
+						"[1, 1, 1, 6, 6]" +
+				"]";
+		String actual = Arrays.toString(hand.getPossibleOutcomes(mask));
+		assertEquals(expected, actual);
+		
+		Hand[] hands = (hand.getPossibleOutcomes(0x18));
+		for (Hand h : hands) {
+			System.out.println(h);
+		}
 	}
 }
