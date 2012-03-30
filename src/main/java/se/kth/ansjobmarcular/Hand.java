@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.math.util.MathUtils;
+
 /**
  * The hand class represents the 5 dices in a set state.
  * 
@@ -24,6 +26,48 @@ public class Hand {
 		this.dice[3] = d;
 		this.dice[4] = e;
 		Arrays.sort(this.dice);
+	}
+
+	public Hand[] getPossibleOutcomes(int holdMask) {
+		int rolled = 0;
+		int outcomes, outs;
+		int[] counts = new int[6];
+		int[] tmp = new int[5];
+		Hand[] res;
+
+		/* Count the held, and the number of rolled dice. */
+		for (int i = 0; i < 5; i++) {
+			if ((holdMask & (16 >> i)) > 0)
+				counts[this.dice[i] - 1]++;
+			else
+				rolled++;
+		}
+
+		/* If all dice are held, there's only one outcome (the current hand). */
+		if (rolled == 0)
+			return new Hand[] { this };
+
+		/* Calculate how many different outcomes there are. */
+		outcomes = (int) MathUtils.binomialCoefficient(6, rolled);
+		res = new Hand[outcomes];
+
+		/* Prepare the buffer that will be used to fill the outcome array with. */
+		int idx = 0;
+		for (int i = 0; i < 6; i++) {
+			for (int j = 0; j < counts[i]; j++) {
+				tmp[idx++] = i + 1;
+			}
+		}
+		
+		outs = 0;
+		for (int sum = rolled; sum <= rolled * 6; sum++) {
+			for (int die = 0; die < rolled; die++) {
+				
+			}
+			res[outs++] = new Hand(tmp[0], tmp[1], tmp[2], tmp[3], tmp[4]);
+		}
+
+		return res;
 	}
 
 	public int[] getDice() {
@@ -112,7 +156,7 @@ public class Hand {
 		}
 		return false;
 	}
-	
+
 	@Override
 	public String toString() {
 		return Arrays.toString(dice);

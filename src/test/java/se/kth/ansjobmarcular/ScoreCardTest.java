@@ -160,6 +160,8 @@ public class ScoreCardTest {
 		 sc = new ScoreCard();
 		 sc.fillScore(Category.ONES, 60);
 		 assertEquals(55, sc.value(new Hand(2, 2, 2, 4, 5), Category.FIVES));
+		 sc.fillScore(Category.TWOS, 3);
+		 assertEquals(5, sc.value(new Hand(2, 2, 2, 4, 5), Category.FIVES));
 		 sc = new ScoreCard();
 	 }
 }
