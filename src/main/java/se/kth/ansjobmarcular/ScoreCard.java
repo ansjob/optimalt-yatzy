@@ -252,7 +252,7 @@ public class ScoreCard {
 			score = 0;
 			break;
 		}
-		if (score + upperTotal >= 63)
+		if (upperTotal < 63 && score + upperTotal >= 63)
 			score += 50;
 		return score;
 	}
