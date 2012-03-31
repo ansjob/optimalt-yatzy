@@ -77,10 +77,10 @@ public class Generator {
 			/* If last roll. */
 			if (roll == 3) {
 				List<Callable<Void>> handExecutions = new LinkedList<Callable<Void>>();
-				/* For every possible hand. */
+				/* For every possible hand */
 				for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
 					handExecutions.add(new BaseFinalHand(sc, hand, cat,
-							expectedScores, workingVals));
+						expectedScores, workingVals));
 				}
 				runner.invokeAll(handExecutions);
 				continue;
@@ -171,8 +171,10 @@ public class Generator {
 										tmpSc.fillScore(category);
 									}
 
-									/* Add the expected score of the next state. */
-									score += expectedScores[0][1].get(tmpSc);
+									/* Check that this was set (assume 0 otherwise) */
+									if (expectedScores[0][1].containsKey(tmpSc))
+										/* Add the expected score of the next state. */
+										score += expectedScores[0][1].get(tmpSc);
 
 									/*
 									 * If this is the best score so far,
