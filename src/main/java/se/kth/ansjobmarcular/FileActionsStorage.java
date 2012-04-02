@@ -7,8 +7,7 @@ import java.io.RandomAccessFile;
 public class FileActionsStorage implements ActionsStorage {
 
 	private static final long MAX_INDEX = 3 * (Hand.MAX_INDEX + 1) * (ScoreCard.MAX_INDEX + 1);
-	
-	
+
 	private RandomAccessFile fp;
 
 	public FileActionsStorage() {
@@ -64,7 +63,7 @@ public class FileActionsStorage implements ActionsStorage {
 		//System.out.printf("Index returned %d\n", idx);
 		return idx;
 	}
-	
+
 	private void putByte(long index, int b) {
 		try {
 			fp.seek(index);
@@ -73,7 +72,7 @@ public class FileActionsStorage implements ActionsStorage {
 			e.printStackTrace();
 		}
 	}
-	
+
 	private int getByte(long index) {
 		try {
 			fp.seek(index);
