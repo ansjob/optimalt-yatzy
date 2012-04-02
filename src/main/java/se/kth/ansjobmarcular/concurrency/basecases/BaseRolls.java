@@ -22,9 +22,9 @@ public class BaseRolls extends ParallellAction {
     protected final ActionsStorage db;
     protected int hand;
     protected ScoreCard sc;
-    protected int cat;
+    protected Category cat;
 
-    public BaseRolls(int roll, ActionsStorage db, ScoreCard sc, int hand, int cat, Map<ScoreCard, Double>[][] expectedScores, Map<ScoreCard, Double>[][] workingVals) {
+    public BaseRolls(int roll, ActionsStorage db, ScoreCard sc, int hand, Category cat, Map<ScoreCard, Double>[][] expectedScores, Map<ScoreCard, Double>[][] workingVals) {
         super(expectedScores, workingVals);
         this.roll = roll;
         this.db = db;
@@ -87,7 +87,7 @@ public class BaseRolls extends ParallellAction {
 				Hand.getHand(hand), roll - 1);
 		System.out
 				.printf("Base case: %s \tUppertotal: %d \tHand %s \tMask: 0x%x \tRoll: %d \tExpected score %.2f\n",
-						Category.values()[cat], sc.getUpper(),
+						cat, sc.getUpper(),
 						Hand.getHand(hand), bestMask, roll, max);
         return null;
     }

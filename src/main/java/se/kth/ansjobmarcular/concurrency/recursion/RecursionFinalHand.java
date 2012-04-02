@@ -10,106 +10,99 @@ import se.kth.ansjobmarcular.concurrency.ParallellAction;
 
 public class RecursionFinalHand extends ParallellAction {
 
-    protected int cat;
-    protected ScoreCard sc;
-    protected int hand;
-    protected ActionsStorage db;
+	protected int cat;
+	protected ScoreCard sc;
+	protected int hand;
+	protected ActionsStorage db;
 
-    public RecursionFinalHand(
-            int cat,
-            ScoreCard sc,
-            int hand,
-            ActionsStorage db,
-            Map<ScoreCard, Double>[][] expectedScores,
-            Map<ScoreCard, Double>[][] workingVals) {
-        super(expectedScores, workingVals);
-        this.cat = cat;
-        this.sc = sc;
-        this.hand = hand;
-        this.db = db;
-    }
+	public RecursionFinalHand(int cat, ScoreCard sc, int hand,
+			ActionsStorage db, Map<ScoreCard, Double>[][] expectedScores,
+			Map<ScoreCard, Double>[][] workingVals) {
+		super(expectedScores, workingVals);
+		this.cat = cat;
+		this.sc = sc;
+		this.hand = hand;
+		this.db = db;
+	}
 
-    public Void call() throws Exception {
-        double max = 0;
-        byte bestCat = 0;
-        Category category;
-        ScoreCard tmpSc;
-        /*
-         * For every unfilled category.
-         */
-        for (int cat = 1; cat <= 15; cat++) {
-            category = Category.values()[cat - 1];
-            if (sc.isFilled(category)) {
-                continue;
-            }
+	public Void call() throws Exception {
+		double max = 0;
+		byte bestCat = 0;
+		ScoreCard tmpSc;
+		/*
+		 * For every unfilled category.
+		 */
+		for (Category cat : Category.values()) {
+			if (sc.isFilled(cat)) {
+				continue;
+			}
 
-            /*
-             * Pretend to fill the category.
-             */
-            try {
-                tmpSc = (ScoreCard) sc.clone();
-            } catch (CloneNotSupportedException e) {
-                e.printStackTrace();
-                return null;
-            }
+			/*
+			 * Pretend to fill the category.
+			 */
+			try {
+				tmpSc = (ScoreCard) sc.clone();
+			} catch (CloneNotSupportedException e) {
+				e.printStackTrace();
+				return null;
+			}
 
-            /*
-             * Calculate the expected score if filling current category with the
-             * hand.
-             */
-            double score = tmpSc.value(Hand.getHand(hand),
-                    category);
+			/*
+			 * Calculate the expected score if filling current category with the
+			 * hand.
+			 */
+			double score = tmpSc.value(Hand.getHand(hand), cat);
 
-            /*
-             * If ONES-SIXES, take bonus into consideration.
-             */
-            if (cat <= 6) {
-                tmpSc.fillScore(category, tmpSc.value(
-                        Hand.getHand(hand), category));
-            } else {
-                tmpSc.fillScore(category);
-            }
+			/*
+			 * If ONES-SIXES, take bonus into consideration.
+			 */
+			if (cat == Category.ONES || cat == Category.TWOS
+					|| cat == Category.THREES || cat == Category.FOURS
+					|| cat == Category.FIVES || cat == Category.SIXES) {
+				tmpSc.fillScore(cat, tmpSc.value(Hand.getHand(hand),
+						cat));
+			} else {
+				tmpSc.fillScore(cat);
+			}
 
-            /*
-             * Check that this was set (assume 0 otherwise)
-             */
-            if (expectedScores[0][1].containsKey(tmpSc)) 
-            /*
-             * Add the expected score of the next state.
-             */ 
-            {
-                score += expectedScores[0][1].get(tmpSc);
-            }
+			/*
+			 * Check that this was set (assume 0 otherwise)
+			 */
+			if (expectedScores[0][1].containsKey(tmpSc))
+			/*
+			 * Add the expected score of the next state.
+			 */
+			{
+				score += expectedScores[0][1].get(tmpSc);
+			}
 
-            /*
-             * If this is the best score so far, remember what category was the
-             * optimal.
-             */
-            if (score > max) {
-                max = score;
-                bestCat = (byte) (cat - 1);
-            }
-        }
+			/*
+			 * If this is the best score so far, remember what category was the
+			 * optimal.
+			 */
+			if (score > max) {
+				max = score;
+				bestCat = (byte) Category.toInt(cat);
+			}
+		}
 
-        /*
-         * Save the optimal expected score for this state.
-         */
-        workingVals[3][hand].put(sc, max);
+		/*
+		 * Save the optimal expected score for this state.
+		 */
+		workingVals[3][hand].put(sc, max);
 
-        // System.out.printf("%x: filling %s: %s => %.2f\n",
-        // sc.getIndex(), bestCategory,
-        // Hand.getHand(hand), max);
+		// System.out.printf("%x: filling %s: %s => %.2f\n",
+		// sc.getIndex(), bestCategory,
+		// Hand.getHand(hand), max);
 
-        /*
-         * Save the optimal category to put the hand in (the optimal action).
-         */
-        // actions[roll - 1][hand][sc.getIndex()] =
-        // bestCat;
-        db.addMarkingAction(new MarkingAction(bestCat),
-                sc, Hand.getHand(hand));
-        System.out.printf("Scorecard: %s\n Hand: %s -> %s\n\n", sc.toString(),
-        		Hand.getHand(hand).toString(), 
-        		Category.values()[bestCat]);
-        return null;
-    }
+		/*
+		 * Save the optimal category to put the hand in (the optimal action).
+		 */
+		// actions[roll - 1][hand][sc.getIndex()] =
+		// bestCat;
+		db.addMarkingAction(new MarkingAction(bestCat), sc, Hand.getHand(hand));
+		System.out.printf("Scorecard: %s\n Hand: %s -> %s\n\n", sc.toString(),
+				Hand.getHand(hand).toString(), Category.values()[bestCat]);
+		return null;
+	}
 }

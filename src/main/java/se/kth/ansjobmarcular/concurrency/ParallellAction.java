@@ -6,7 +6,6 @@ package se.kth.ansjobmarcular.concurrency;
 
 import java.util.Map;
 import java.util.concurrent.Callable;
-import se.kth.ansjobmarcular.ActionsStorage;
 import se.kth.ansjobmarcular.ScoreCard;
 
 /**

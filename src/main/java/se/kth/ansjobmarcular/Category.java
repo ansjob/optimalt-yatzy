@@ -1,5 +1,13 @@
 package se.kth.ansjobmarcular;
 
+import java.util.Arrays;
+
 public enum Category {
-	ONES, TWOS, THREES, FOURS, FIVES, SIXES, PAIR, TWOPAIR, THREEOFAKIND, FOUROFAKIND, SMALLSTRAIGHT, LARGESTRAIGHT, HOUSE, CHANCE, YATZY;	
+	ONES, TWOS, THREES, FOURS, FIVES, SIXES, PAIR, TWOPAIR, THREEOFAKIND, FOUROFAKIND, SMALLSTRAIGHT, LARGESTRAIGHT, HOUSE, CHANCE, YATZY;
+	
+	static Category[] values = Category.values();
+	
+	public static int toInt(Category c) {
+		return Arrays.binarySearch(values, c); 
+	}
 }

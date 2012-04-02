@@ -50,11 +50,14 @@ public class Generator {
 		System.out.printf("┐\n ");
 		/* For every last (unfilled) category. */
 		List<BaseCase> tasks = new LinkedList<BaseCase>();
-		for (int cat = 0; cat < 15; cat++) {
+		for (Category cat : Category.values()) {
 			/* The upper total only matters for the first six categories */
-			if (cat < 6) {
+			if (cat == Category.ONES || cat == Category.TWOS
+					|| cat == Category.THREES || cat == Category.FOURS
+					|| cat == Category.FIVES || cat == Category.SIXES) {
 				for (int upperTotal = 1; upperTotal <= 63; upperTotal++) {
-					tasks.add(new BaseCase(expectedScores, workingVals, upperTotal, cat, runner, db));
+					tasks.add(new BaseCase(expectedScores, workingVals,
+							upperTotal, cat, runner, db));
 				}
 			}
 			/*
@@ -63,7 +66,8 @@ public class Generator {
 			 * that if we reach the final round, and have something other than
 			 * 1-6 left, we just pretend upperTotal is 0
 			 */
-			tasks.add(new BaseCase(expectedScores, workingVals, 0, cat, runner, db));
+			tasks.add(new BaseCase(expectedScores, workingVals, 0, cat, runner,
+					db));
 			System.out.printf("#");
 		}
 		runner.invokeAll(tasks);
