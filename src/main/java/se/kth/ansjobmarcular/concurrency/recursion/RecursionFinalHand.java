@@ -85,9 +85,9 @@ public class RecursionFinalHand extends ParallellAction {
              * If this is the best score so far, remember what category was the
              * optimal.
              */
-            if (score >= max) {
+            if (score > max) {
                 max = score;
-                bestCat = (byte) cat;
+                bestCat = (byte) (cat - 1);
             }
         }
 
@@ -107,6 +107,9 @@ public class RecursionFinalHand extends ParallellAction {
         // bestCat;
         db.addMarkingAction(new MarkingAction(bestCat),
                 sc, Hand.getHand(hand));
+        System.out.printf("Scorecard: %s\n Hand: %s -> %s\n\n", sc.toString(),
+        		Hand.getHand(hand).toString(), 
+        		Category.values()[bestCat]);
         return null;
     }
 }

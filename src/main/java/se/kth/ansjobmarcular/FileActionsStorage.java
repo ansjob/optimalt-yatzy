@@ -12,7 +12,7 @@ public class FileActionsStorage implements ActionsStorage {
 	private RandomAccessFile fp;
 
 	public FileActionsStorage() {
-		File file = new File("actions");
+		File file = new File("/tmp/actions");
 		try {
 			fp = new RandomAccessFile(file, "rw");
 //			System.out.printf("Max index: %d\n", MAX_INDEX);

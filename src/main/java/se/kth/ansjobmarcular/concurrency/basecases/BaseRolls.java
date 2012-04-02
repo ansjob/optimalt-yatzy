@@ -65,7 +65,7 @@ public class BaseRolls extends ParallellAction {
              * You can't hold/save dice you never rolled.
              */
             if (roll == 0) {
-                return null;
+                break;
             }
         }
 

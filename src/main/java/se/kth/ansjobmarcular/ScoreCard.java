@@ -14,12 +14,39 @@ public class ScoreCard {
 		upperTotal = 0;
 		filled = 0;
 	}
+	
+	public int lowestEffectiveUpper() {
+		int res;
+		int max = 0;
+		for (int i = 0; i < 6; i++) {
+			if (!isFilled(Category.values()[i])) {
+				max += 5*(i+1);
+			}
+		}
+		res = 63 - max;
+		if (res < 0)
+			return 0;
+		else
+			return res;
+	}
 
 	public String getFilled() {
 		List<Category> checked = new LinkedList<Category>();
 
 		for (int i = 0; i < 15; i++) {
 			if (((1 << i) & filled) > 0) {
+				checked.add(Category.values()[i]);
+			}
+		}
+
+		return checked.toString();
+	}
+	
+	public String getUnFilled() {
+		List<Category> checked = new LinkedList<Category>();
+
+		for (int i = 0; i < 15; i++) {
+			if (((1 << (14-i)) & filled) == 0) {
 				checked.add(Category.values()[i]);
 			}
 		}
@@ -150,7 +177,7 @@ public class ScoreCard {
 
 	@Override
 	public String toString() {
-		return "" + getIndex();
+		return upperTotal + " " + getUnFilled();
 	}
 
 	@Override
