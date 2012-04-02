@@ -41,15 +41,14 @@ public class RecursionRoll extends ParallellAction {
         /*
          * For every hold mask.
          */
-        for (int mask = 0; mask <= 0x1ff; mask++) {
+        for (int mask = 0; mask <= 0x1f; mask++) {
             double score = 0;
             /*
              * For every possible outcome hand.
              */
             for (Hand destHand : Hand.getHand(hand).getPossibleOutcomes(mask)) {
                 double expected = workingVals[roll + 1][destHand.getIndex()].get(sc);
-                score += Hand.getHand(hand).probability(
-                        destHand, mask)
+                score += Hand.getHand(hand).probability(destHand, mask)
                         * expected;
             }
             if (score > max) {

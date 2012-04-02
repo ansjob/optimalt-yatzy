@@ -17,7 +17,7 @@ import org.apache.commons.math.util.MathUtils;
  */
 public class Hand {
 	public static final int MAX_INDEX = 252;
-	public static final int MAX_MASK = 0x1ff;
+	public static final int MAX_MASK = 0x1f;
 	public static final int SIZE = 5;
 	private final int dice[];
 
@@ -54,7 +54,7 @@ public class Hand {
 		/* Calculate how many different outcomes there are. */
 		outcomes = (int) MathUtils.binomialCoefficient(rolledIdxs.size() +5, 5);
 		res = new Hand[outcomes];
-		
+
 		/* Initialize a buffer with 1's for the dice to be rolled.*/
 		int[] prevBuf = Arrays.copyOf(dice, 5);
 		for (Integer rolledIdx : rolledIdxs) {
@@ -64,7 +64,7 @@ public class Hand {
 		Arrays.sort(prevBuf);
 		/* The first possible outcome is generated. Let's save it */
 		res[0] = new Hand(prevBuf[0], prevBuf[1], prevBuf[2], prevBuf[3], prevBuf[4]);
-		
+
 		for (int outcome = 1; outcome<outcomes; outcome++) {
 			int[] buf = Arrays.copyOf(prevBuf, 5);
 
@@ -80,7 +80,7 @@ public class Hand {
 					}
 				}
 			}
-			
+
 			prevBuf = Arrays.copyOf(buf, 5);
 			Arrays.sort(buf);
 			res[outcome] = new Hand(buf[0], buf[1], buf[2], buf[3], buf[4]);
