@@ -33,7 +33,7 @@ public class ScoreCard {
 	}
 
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
+	public Object clone() throws CloneNotSupportedException {
 		return new ScoreCard(filled, upperTotal);
 	}
 

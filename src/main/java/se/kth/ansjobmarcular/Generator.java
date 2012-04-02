@@ -1,20 +1,25 @@
 package se.kth.ansjobmarcular;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import se.kth.ansjobmarcular.concurrency.basecases.BaseFinalHand;
 import se.kth.ansjobmarcular.concurrency.basecases.BaseRolls;
+import se.kth.ansjobmarcular.concurrency.recursion.RecursionFinalHand;
+import se.kth.ansjobmarcular.concurrency.recursion.RecursionRoll;
 
 public class Generator {
 
 	/* The array containing the optimal strategy. */
 	// private byte[][][] actions;
 
-	private HashMap<ScoreCard, Double>[][] expectedScores, workingVals;
+	private Map<ScoreCard, Double>[][] expectedScores, workingVals;
 
 	private ActionsStorage db = new FileActionsStorage();
 
@@ -23,13 +28,13 @@ public class Generator {
 	@SuppressWarnings("unchecked")
 	public Generator() {
 		// actions = new byte[3][Hand.MAX_INDEX + 1][ScoreCard.MAX_INDEX + 1];
-		workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][253];
-		expectedScores = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][253];
+		workingVals = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][253];
+		expectedScores = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][253];
 
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 253; j++) {
-				workingVals[i][j] = new HashMap<ScoreCard, Double>();
-				expectedScores[i][j] = new HashMap<ScoreCard, Double>();
+				workingVals[i][j] = Collections.synchronizedMap(new HashMap<ScoreCard, Double>());
+				expectedScores[i][j] = Collections.synchronizedMap(new HashMap<ScoreCard, Double>());
 			}
 		}
 	}
@@ -71,7 +76,7 @@ public class Generator {
 			if (c != Category.values()[cat])
 				sc.fillScore(c);
 		}
-		
+
 		/* For every roll during this round. */
 		for (int roll = 3; roll >= 0; roll--) {
 			/* If last roll. */
@@ -100,7 +105,7 @@ public class Generator {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void generate() {
+	public void generate() throws InterruptedException {
 		double max, score;
 		int bestMask;
 		boolean[][] ways;
@@ -111,10 +116,10 @@ public class Generator {
 		for (int filled = 13; filled >= 0; filled--) {
 
 			/* Initialize workingVals. */
-			workingVals = (HashMap<ScoreCard, Double>[][]) new HashMap<?, ?>[4][Hand.MAX_INDEX + 1];
+			workingVals = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][Hand.MAX_INDEX + 1];
 			for (int i = 0; i < 4; i++) {
 				for (int j = 0; j <= Hand.MAX_INDEX; j++) {
-					workingVals[i][j] = new HashMap<ScoreCard, Double>();
+					workingVals[i][j] = Collections.synchronizedMap(new HashMap<ScoreCard, Double>());
 				}
 			}
 
@@ -136,118 +141,21 @@ public class Generator {
 						/* If last roll. */
 						if (roll == 3) {
 							/* For every possible hand. */
+                            List<RecursionFinalHand> tasks = new LinkedList<RecursionFinalHand>();
 							for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-								max = 0;
-								byte bestCat = 0;
-								/* For every unfilled category. */
-								for (int cat = 1; cat <= 15; cat++) {
-									category = Category.values()[cat - 1];
-									if (sc.isFilled(category))
-										continue;
-
-									/* Pretend to fill the category. */
-									try {
-										tmpSc = (ScoreCard) sc.clone();
-									} catch (CloneNotSupportedException e) {
-										e.printStackTrace();
-										return;
-									}
-
-									/*
-									 * Calculate the expected score if filling
-									 * current category with the hand.
-									 */
-									score = tmpSc.value(Hand.getHand(hand),
-											category);
-
-									/*
-									 * If ONES-SIXES, take bonus into
-									 * consideration.
-									 */
-									if (cat <= 6) {
-										tmpSc.fillScore(category, tmpSc.value(
-												Hand.getHand(hand), category));
-									} else {
-										tmpSc.fillScore(category);
-									}
-
-									/* Check that this was set (assume 0 otherwise) */
-									if (expectedScores[0][1].containsKey(tmpSc))
-										/* Add the expected score of the next state. */
-										score += expectedScores[0][1].get(tmpSc);
-
-									/*
-									 * If this is the best score so far,
-									 * remember what category was the optimal.
-									 */
-									if (score >= max) {
-										max = score;
-										bestCat = (byte) cat;
-									}
-								}
-
-								/*
-								 * Save the optimal expected score for this
-								 * state.
-								 */
-								workingVals[3][hand].put(sc, max);
-
-								// System.out.printf("%x: filling %s: %s => %.2f\n",
-								// sc.getIndex(), bestCategory,
-								// Hand.getHand(hand), max);
-
-								/*
-								 * Save the optimal category to put the hand in
-								 * (the optimal action).
-								 */
-								// actions[roll - 1][hand][sc.getIndex()] =
-								// bestCat;
-								db.addMarkingAction(new MarkingAction(bestCat),
-										sc, Hand.getHand(hand));
+								tasks.add(new RecursionFinalHand(hand, sc, hand, db, expectedScores, workingVals));
 							}
+                            runner.invokeAll(tasks);
 							continue;
 						}
 
 						/* If roll 0-2 */
 						/* For every hand. */
+                        List<RecursionRoll> tasks = new LinkedList<RecursionRoll>();
 						for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-							max = 0;
-							bestMask = 0;
-							/* For every hold mask. */
-							for (int mask = 0; mask <= 0x1ff; mask++) {
-								score = 0;
-								/* For every possible outcome hand. */
-								for (int destHand = 1; destHand <= Hand.MAX_INDEX; destHand++) {
-									double expected = workingVals[roll + 1][destHand]
-											.get(sc);
-									score += Hand.getHand(hand).probability(
-											Hand.getHand(destHand), mask)
-											* expected;
-								}
-								if (score > max) {
-									max = score;
-									bestMask = mask;
-								}
-								if (roll == 0)
-									break;
-							}
-
-							/* Save the optimal score for this state. */
-							workingVals[roll][hand].put(sc, max);
-
-							// System.out.printf("%x: %s roll: %d, action: %x => %.2f\n",
-							// sc.getIndex(), Hand.getHand(hand), roll,
-							// bestMask, workingVals[roll][hand].get(sc));
-
-							if (roll == 0)
-								break;
-
-							/* Save the optimal action for the state. */
-							// actions[roll - 1][hand][sc.getIndex()] = (byte)
-							// bestMask;
-							db.addRollingAction(new RollingAction(bestMask),
-									sc, Hand.getHand(hand), roll - 1);
+							tasks.add(new RecursionRoll(roll, hand, sc, db, expectedScores, workingVals));
 						}
+                        runner.invokeAll(tasks);
 					}
 				}
 			}
