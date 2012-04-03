@@ -5,9 +5,9 @@
 package se.kth.ansjobmarcular.concurrency.recursion;
 
 import java.util.Map;
+
 import se.kth.ansjobmarcular.ActionsStorage;
 import se.kth.ansjobmarcular.Hand;
-import se.kth.ansjobmarcular.RollingAction;
 import se.kth.ansjobmarcular.ScoreCard;
 import se.kth.ansjobmarcular.concurrency.ParallellAction;
 
@@ -69,7 +69,7 @@ public class RecursionRoll extends ParallellAction {
 		/*
 		 * Save the optimal action for the state.
 		 */
-		db.addRollingAction(new RollingAction(bestMask), sc,
+		db.addRollingAction((byte) bestMask, sc,
 				Hand.getHand(hand), roll - 1);
 		return null;
 	}

@@ -9,7 +9,7 @@ public interface ActionsStorage {
 	 * @param roll an integer 0, 1, or 2 (how many times the player has already rolled the dice)
 	 * @return An action that encodes which dice to hold
 	 */
-	public RollingAction suggestRoll(Hand currentHand, ScoreCard currentScore, int roll);
+	public byte suggestRoll(Hand currentHand, ScoreCard currentScore, int roll);
 
 	/**
 	 * Will get the action stored in the database how to mark the scorecard with a given hand.
@@ -17,7 +17,7 @@ public interface ActionsStorage {
 	 * @param currentScore The scorecard.
 	 * @return A {@link MarkingAction} that tells how to mark the scorecard.
 	 */
-	public MarkingAction suggestMarking(Hand currentHand, ScoreCard currentScore);
+	public byte suggestMarking(Hand currentHand, ScoreCard currentScore);
 	
 	/**
 	 * Saves the action for later retrieval.
@@ -25,7 +25,7 @@ public interface ActionsStorage {
 	 * @param currentScore
 	 * @param hand
 	 */
-	public void addMarkingAction(MarkingAction action, ScoreCard currentScore, Hand hand);
+	public void addMarkingAction(byte action, ScoreCard currentScore, Hand hand);
 	
 	/**
 	 * Saves the action for later retrieval.
@@ -34,7 +34,7 @@ public interface ActionsStorage {
 	 * @param hand
 	 * @param roll
 	 */
-	public void addRollingAction(RollingAction action, ScoreCard currentScore, Hand hand, int roll);
+	public void addRollingAction(byte action, ScoreCard currentScore, Hand hand, int roll);
 	
 	public void putExpectedScore(double expected, ScoreCard currentScore, Hand hand, int roll);
 	

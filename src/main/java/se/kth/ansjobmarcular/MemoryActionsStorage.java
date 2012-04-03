@@ -14,23 +14,23 @@ public class MemoryActionsStorage implements ActionsStorage {
 
 
     @Override
-    public RollingAction suggestRoll(Hand currentHand, ScoreCard currentScore, int roll) {
-        return new RollingAction(storage[roll][currentHand.getIndex()][currentScore.getIndex()]);
+    public byte suggestRoll(Hand currentHand, ScoreCard currentScore, int roll) {
+        return storage[roll][currentHand.getIndex()][currentScore.getIndex()];
     }
 
     @Override
-    public MarkingAction suggestMarking(Hand currentHand, ScoreCard currentScore) {
-        return new MarkingAction(storage[3][currentHand.getIndex()][currentScore.getIndex()]);
+    public byte suggestMarking(Hand currentHand, ScoreCard currentScore) {
+        return storage[3][currentHand.getIndex()][currentScore.getIndex()];
     }
 
     @Override
-    public void addMarkingAction(MarkingAction action, ScoreCard currentScore, Hand hand) {
-        storage[3][hand.getIndex()][currentScore.getIndex()] = (byte) action.getIndex();
+    public void addMarkingAction(byte action, ScoreCard currentScore, Hand hand) {
+        storage[3][hand.getIndex()][currentScore.getIndex()] = (byte) action;
     }
 
     @Override
-    public void addRollingAction(RollingAction action, ScoreCard currentScore, Hand hand, int roll) {
-        storage[roll][hand.getIndex()][currentScore.getIndex()] = (byte) action.getIndex();
+    public void addRollingAction(byte action, ScoreCard currentScore, Hand hand, int roll) {
+        storage[roll][hand.getIndex()][currentScore.getIndex()] = (byte) action;
     }
 
     @Override

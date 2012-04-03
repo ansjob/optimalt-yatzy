@@ -1,10 +1,10 @@
 package se.kth.ansjobmarcular.concurrency.recursion;
 
 import java.util.Map;
+
 import se.kth.ansjobmarcular.ActionsStorage;
 import se.kth.ansjobmarcular.Category;
 import se.kth.ansjobmarcular.Hand;
-import se.kth.ansjobmarcular.MarkingAction;
 import se.kth.ansjobmarcular.ScoreCard;
 import se.kth.ansjobmarcular.concurrency.ParallellAction;
 
@@ -91,7 +91,7 @@ public class RecursionFinalHand extends ParallellAction {
 		/*
 		 * Save the optimal category to put the hand in (the optimal action).
 		 */
-		db.addMarkingAction(new MarkingAction(bestCat), sc, Hand.getHand(hand));
+		db.addMarkingAction(bestCat, sc, Hand.getHand(hand));
 		System.out.printf("Scorecard: %s\n Hand: %s -> %s\n\n", sc.toString(),
 				Hand.getHand(hand).toString(), Category.values()[bestCat]);
 		return null;

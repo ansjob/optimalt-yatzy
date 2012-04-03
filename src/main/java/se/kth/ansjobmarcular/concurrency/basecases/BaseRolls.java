@@ -5,10 +5,10 @@
 package se.kth.ansjobmarcular.concurrency.basecases;
 
 import java.util.Map;
+
 import se.kth.ansjobmarcular.ActionsStorage;
 import se.kth.ansjobmarcular.Category;
 import se.kth.ansjobmarcular.Hand;
-import se.kth.ansjobmarcular.RollingAction;
 import se.kth.ansjobmarcular.ScoreCard;
 import se.kth.ansjobmarcular.concurrency.ParallellAction;
 
@@ -78,7 +78,7 @@ public class BaseRolls extends ParallellAction {
         /*
          * Save the optimal action.
          */
-		db.addRollingAction(new RollingAction(bestMask), sc,
+		db.addRollingAction((byte) bestMask, sc,
 				Hand.getHand(hand), roll - 1);
 		System.out
 				.printf("Base case: %s \tUppertotal: %d \tHand %s \tMask: 0x%x \tRoll: %d \tExpected score %.2f\n",
