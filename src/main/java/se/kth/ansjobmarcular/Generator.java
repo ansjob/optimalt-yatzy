@@ -20,7 +20,7 @@ public class Generator {
     // private byte[][][] actions;
     private Map<ScoreCard, Double>[][] expectedScores, workingVals;
     private ActionsStorage db = new MemoryActionsStorage();
-    private ExecutorService runner = Executors.newFixedThreadPool(64);
+    private ExecutorService runner = Executors.newFixedThreadPool(256);
 
     @SuppressWarnings("unchecked")
     public Generator() {

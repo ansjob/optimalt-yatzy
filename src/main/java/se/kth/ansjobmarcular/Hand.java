@@ -90,7 +90,7 @@ public class Hand {
 	}
 
 	public int[] getDice() {
-		return Arrays.copyOf(dice, SIZE);
+		return dice;
 	}
 
 	public static int indexOf(Hand h) {
