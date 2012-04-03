@@ -7,6 +7,7 @@ import se.kth.ansjobmarcular.ActionsStorage;
 import se.kth.ansjobmarcular.Category;
 import se.kth.ansjobmarcular.Hand;
 import se.kth.ansjobmarcular.ScoreCard;
+import se.kth.ansjobmarcular.Utils;
 import se.kth.ansjobmarcular.concurrency.ParallellAction;
 
 public class BaseCase extends ParallellAction {
@@ -96,13 +97,12 @@ public class BaseCase extends ParallellAction {
 				 */
 				db.addRollingAction((byte) bestMask, sc,
 						Hand.getHand(hand), roll - 1);
-				System.out
-						.printf("Base case: %s \tUppertotal: %d \tHand %s \tMask: 0x%x \tRoll: %d \tExpected score %.2f\n",
+				Utils.debug("Base case: %s \tUppertotal: %d \tHand %s \tMask: 0x%x \tRoll: %d \tExpected score %.2f\n",
 								cat, sc.getUpper(), Hand.getHand(hand),
 								bestMask, roll, max);
 			}
 		}
-		System.out.printf(
+		Utils.debug(
 				"Generated all base cases for %s with upperTotal %d\n", cat,
 				upperTotal);
 		return null;

@@ -6,6 +6,7 @@ import se.kth.ansjobmarcular.ActionsStorage;
 import se.kth.ansjobmarcular.Category;
 import se.kth.ansjobmarcular.Hand;
 import se.kth.ansjobmarcular.ScoreCard;
+import se.kth.ansjobmarcular.Utils;
 import se.kth.ansjobmarcular.concurrency.ParallellAction;
 
 public class RecursionFinalHand extends ParallellAction {
@@ -92,8 +93,8 @@ public class RecursionFinalHand extends ParallellAction {
 		 * Save the optimal category to put the hand in (the optimal action).
 		 */
 		db.addMarkingAction(bestCat, sc, Hand.getHand(hand));
-		System.out.printf("Scorecard: %s\n Hand: %s -> %s\n\n", sc.toString(),
-				Hand.getHand(hand).toString(), Category.values()[bestCat]);
+		Utils.debug("Scorecard: %s\n Hand: %s -> %s\n\n", sc.toString(),
+				Hand.getHand(hand).toString(), Category.fromInt(bestCat));
 		return null;
 	}
 }

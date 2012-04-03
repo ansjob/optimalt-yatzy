@@ -10,4 +10,8 @@ public enum Category {
 	public static int toInt(Category c) {
 		return Arrays.binarySearch(values, c); 
 	}
+	
+	public static Category fromInt(int i) {
+		return values[i];
+	}
 }

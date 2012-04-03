@@ -17,14 +17,12 @@ public class Generator {
     /*
      * The array containing the optimal strategy.
      */
-    // private byte[][][] actions;
     private Map<ScoreCard, Double>[][] expectedScores, workingVals;
     private ActionsStorage db = new MemoryActionsStorage();
-    private ExecutorService runner = Executors.newFixedThreadPool(256);
+    private ExecutorService runner = Executors.newFixedThreadPool(128);
 
     @SuppressWarnings("unchecked")
     public Generator() {
-        // actions = new byte[3][Hand.MAX_INDEX + 1][ScoreCard.MAX_INDEX + 1];
         workingVals = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][253];
         expectedScores = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][253];
 
@@ -39,11 +37,6 @@ public class Generator {
     public void generateBaseCases() throws InterruptedException {
         long startTime = System.currentTimeMillis();
 
-        System.out.printf("┌");
-        for (int i = 0; i < 15; i++) {
-            System.out.printf("─");
-        }
-        System.out.printf("┐\n ");
         /*
          * For every last (unfilled) category.
          */
@@ -68,12 +61,11 @@ public class Generator {
              */
             tasks.add(new BaseCase(expectedScores, workingVals, 0, cat, runner,
                     db));
-            System.out.printf("#");
         }
         runner.invokeAll(tasks);
         copyResults();
         long time = System.currentTimeMillis() - startTime;
-        System.out.printf("Generated base cases in %d ms\n", time);
+        Utils.debug("Generated base cases in %d ms\n", time);
     }
 
     @SuppressWarnings("unchecked")
@@ -161,6 +153,9 @@ public class Generator {
              */
             expectedScores = workingVals;
         }
+        
+        /* Close the storage. */
+        db.close();
     }
 
     /**
@@ -169,7 +164,7 @@ public class Generator {
      */
     private void copyResults() {
         long startTime = System.currentTimeMillis();
-        System.out.printf("Starting to copy results for PAIR -> YATZY\n\n");
+        Utils.debug("Starting to copy results for PAIR -> YATZY\n\n");
         Category[] values = Category.values();
         for (int cat = 6; cat < values.length; cat++) {
             Category c = values[cat];
@@ -182,7 +177,7 @@ public class Generator {
                     sc.fillScore(other);
                 }
             }
-            System.out.printf("Copying values for %s\n", c);
+            Utils.debug("Copying values for %s\n", c);
             for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
                 Hand h = Hand.getHand(hand);
                 for (int roll = 0; roll <= 3; roll++) {
@@ -199,16 +194,16 @@ public class Generator {
                             db.addRollingAction((byte) action, sc, h, roll);
                     }
                 }
-                System.out.printf("Copied everything for %s with hand %s\n", c, h.toString());
+                Utils.debug("Copied everything for %s with hand %s\n", c, h.toString());
             }
         }
         long elapsed = System.currentTimeMillis() - startTime;
-        System.out.printf("Copied base cases in %d ms\n", elapsed);
+        Utils.debug("Copied base cases in %d ms\n", elapsed);
     }
     
     public void copyResults(ScoreCard sc) {
 
-        System.out.printf("Copying values for %s\n", sc);
+    	Utils.debug("Copying values for %s\n", sc);
         for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
             Hand h = Hand.getHand(hand);
             for (int roll = 0; roll <= 3; roll++) {
@@ -225,7 +220,7 @@ public class Generator {
                         db.addRollingAction((byte) action, sc, h, roll);
                 }
             }
-            System.out.printf("Copied everything for %s with hand %s\n", sc, h.toString());
+            Utils.debug("Copied everything for %s with hand %s\n", sc, h.toString());
         }
     }
     
