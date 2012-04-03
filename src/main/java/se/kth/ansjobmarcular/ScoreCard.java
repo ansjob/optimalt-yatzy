@@ -5,7 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class ScoreCard {
-	/* 63 << 15 + 2^15 = 2129919 */
 	public static final int MAX_INDEX = 2097151;
 	private int upperTotal;
 	private int filled;

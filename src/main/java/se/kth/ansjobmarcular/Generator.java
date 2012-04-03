@@ -20,7 +20,7 @@ public class Generator {
     // private byte[][][] actions;
     private Map<ScoreCard, Double>[][] expectedScores, workingVals;
     private ActionsStorage db = new MemoryActionsStorage();
-    private ExecutorService runner = Executors.newFixedThreadPool(128);
+    private ExecutorService runner = Executors.newFixedThreadPool(64);
 
     @SuppressWarnings("unchecked")
     public Generator() {
@@ -105,17 +105,19 @@ public class Generator {
                  * Fill out the scorecard in this new way
                  */
                 sc = new ScoreCard();
+                boolean hasUpperFree = false;
                 for (int i = 0; i < way.length; i++) {
                     if (way[i]) {
                         sc.fillScore(Category.values()[i]);
+                    } else if (i < 6) {
+                    	hasUpperFree = true;
                     }
                 }
 
                 /*
                  * For every possible upperTotal score.
                  */
-                for (int upperTotal = 0; upperTotal < 64; upperTotal++) {
-                    sc.addScore(1);
+                for (int upperTotal = 0; upperTotal < 64; upperTotal++, sc.addScore(1)) {
                     /*
                      * For every roll from 3 to 0 for this scorecard.
                      */
@@ -137,10 +139,7 @@ public class Generator {
                         }
 
                         /*
-                         * If roll 0-2
-                         */
-                        /*
-                         * For every hand.
+                         * If roll 0-2, for every hand:
                          */
                         List<RecursionRoll> tasks = new LinkedList<RecursionRoll>();
                         for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
@@ -148,6 +147,10 @@ public class Generator {
                                     expectedScores, workingVals));
                         }
                         runner.invokeAll(tasks);
+                    }
+                    if (!hasUpperFree) {
+                    	copyResults(sc);
+                    	break;
                     }
                 }
             }
@@ -202,4 +205,28 @@ public class Generator {
         long elapsed = System.currentTimeMillis() - startTime;
         System.out.printf("Copied base cases in %d ms\n", elapsed);
     }
+    
+    public void copyResults(ScoreCard sc) {
+
+        System.out.printf("Copying values for %s\n", sc);
+        for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+            Hand h = Hand.getHand(hand);
+            for (int roll = 0; roll <= 3; roll++) {
+                int action;
+                if (roll == 3){
+                    action = db.suggestMarking(h, sc).getIndex();
+                } else {
+                    action = db.suggestRoll(h, sc, roll).getIndex();
+                }
+                for (int upperTotal = 1; upperTotal <= 63; upperTotal++, sc.addScore(1)){
+                    if (roll==3)
+                        db.addMarkingAction(new MarkingAction(action), sc, h);
+                    else
+                        db.addRollingAction(new RollingAction(action), sc, h, roll);
+                }
+            }
+            System.out.printf("Copied everything for %s with hand %s\n", sc, h.toString());
+        }
+    }
+    
 }
