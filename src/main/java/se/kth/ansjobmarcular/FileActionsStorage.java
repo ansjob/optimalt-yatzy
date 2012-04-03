@@ -14,7 +14,6 @@ public class FileActionsStorage implements ActionsStorage {
 		File file = new File("/tmp/actions");
 		try {
 			fp = new RandomAccessFile(file, "rw");
-//			System.out.printf("Max index: %d\n", MAX_INDEX);
 			fp.setLength(MAX_INDEX);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -60,7 +59,6 @@ public class FileActionsStorage implements ActionsStorage {
 	long rollSize = handSize * (Hand.MAX_INDEX + 1);
 	private long getIndex(ScoreCard sc, Hand hand, int roll) {
 		long idx = (rollSize * roll) + (handSize * hand.getIndex()) + (cardSize * sc.getIndex());
-		//System.out.printf("Index returned %d\n", idx);
 		return idx;
 	}
 
