@@ -63,9 +63,6 @@ public class BaseCase extends ParallellAction {
 					for (Hand destHand : h.getPossibleOutcomes(mask)) {
 						double prob = Hand.getHand(hand).probability(destHand,
 								mask);
-						if (prob == 0) {
-							continue;
-						}
 						double expected = expectedScores[roll + 1][destHand
 								.getIndex()].get(sc);
 						score += prob * expected;
@@ -81,9 +78,8 @@ public class BaseCase extends ParallellAction {
 					/*
 					 * You can't hold/save dice you never rolled.
 					 */
-					if (roll == 0) {
+					if (roll == 0)
 						break;
-					}
 				}
 
 				/*
@@ -92,19 +88,17 @@ public class BaseCase extends ParallellAction {
 				 */
 				expectedScores[roll][hand].put(sc, max);
 
-				if (roll == 0) {
+				/* There's no action before rolling the first hand. */
+				if (roll == 0)
 					break;
-				}
 
 				/*
 				 * Save the optimal action.
 				 */
-				// actions[roll - 1][hand][sc.getIndex()] = (byte) bestMask;
-				db.addRollingAction(new RollingAction(bestMask), sc, Hand
-						.getHand(hand), roll - 1);
+				db.addRollingAction(new RollingAction(bestMask), sc,
+						Hand.getHand(hand), roll - 1);
 				System.out
-						.printf(
-								"Base case: %s \tUppertotal: %d \tHand %s \tMask: 0x%x \tRoll: %d \tExpected score %.2f\n",
+						.printf("Base case: %s \tUppertotal: %d \tHand %s \tMask: 0x%x \tRoll: %d \tExpected score %.2f\n",
 								cat, sc.getUpper(), Hand.getHand(hand),
 								bestMask, roll, max);
 			}

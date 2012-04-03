@@ -40,7 +40,7 @@ public class BaseRolls extends ParallellAction {
         /*
          * For every possible combination of holding the dice.
          */
-        for (int mask = 0; mask <= 0x1F; mask++) {
+        for (int mask = 0; mask <= Hand.MAX_MASK; mask++) {
             double score = 0;
             /*
              * For every possible outcome hand.
@@ -48,9 +48,6 @@ public class BaseRolls extends ParallellAction {
             for (Hand destHand : h.getPossibleOutcomes(mask)) {
                 double prob = Hand.getHand(hand).probability(
                         destHand, mask);
-                if (prob == 0) {
-                    continue;
-                }
                 double expected = expectedScores[roll + 1][destHand.getIndex()].get(sc);
                 score += prob * expected;
             }
@@ -64,9 +61,8 @@ public class BaseRolls extends ParallellAction {
             /*
              * You can't hold/save dice you never rolled.
              */
-            if (roll == 0) {
+            if (roll == 0)
                 break;
-            }
         }
 
         /*
@@ -75,14 +71,13 @@ public class BaseRolls extends ParallellAction {
          */
         expectedScores[roll][hand].put(sc, max);
 
-        if (roll == 0) {
+		/* There's no action before rolling the first hand. */
+        if (roll == 0)
             return null;
-        }
 
         /*
          * Save the optimal action.
          */
-        //actions[roll - 1][hand][sc.getIndex()] = (byte) bestMask;
 		db.addRollingAction(new RollingAction(bestMask), sc,
 				Hand.getHand(hand), roll - 1);
 		System.out

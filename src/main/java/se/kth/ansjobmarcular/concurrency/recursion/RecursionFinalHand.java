@@ -33,9 +33,8 @@ public class RecursionFinalHand extends ParallellAction {
 		 * For every unfilled category.
 		 */
 		for (Category cat : Category.values()) {
-			if (sc.isFilled(cat)) {
+			if (sc.isFilled(cat))
 				continue;
-			}
 
 			/*
 			 * Pretend to fill the category.
@@ -59,8 +58,7 @@ public class RecursionFinalHand extends ParallellAction {
 			if (cat == Category.ONES || cat == Category.TWOS
 					|| cat == Category.THREES || cat == Category.FOURS
 					|| cat == Category.FIVES || cat == Category.SIXES) {
-				tmpSc.fillScore(cat, tmpSc.value(Hand.getHand(hand),
-						cat));
+				tmpSc.fillScore(cat, tmpSc.value(Hand.getHand(hand), cat));
 			} else {
 				tmpSc.fillScore(cat);
 			}
@@ -68,11 +66,10 @@ public class RecursionFinalHand extends ParallellAction {
 			/*
 			 * Check that this was set (assume 0 otherwise)
 			 */
-			if (expectedScores[0][1].containsKey(tmpSc))
-			/*
-			 * Add the expected score of the next state.
-			 */
-			{
+			if (expectedScores[0][1].containsKey(tmpSc)) {
+				/*
+				 * Add the expected score of the next state.
+				 */
 				score += expectedScores[0][1].get(tmpSc);
 			}
 
@@ -91,15 +88,9 @@ public class RecursionFinalHand extends ParallellAction {
 		 */
 		workingVals[3][hand].put(sc, max);
 
-		// System.out.printf("%x: filling %s: %s => %.2f\n",
-		// sc.getIndex(), bestCategory,
-		// Hand.getHand(hand), max);
-
 		/*
 		 * Save the optimal category to put the hand in (the optimal action).
 		 */
-		// actions[roll - 1][hand][sc.getIndex()] =
-		// bestCat;
 		db.addMarkingAction(new MarkingAction(bestCat), sc, Hand.getHand(hand));
 		System.out.printf("Scorecard: %s\n Hand: %s -> %s\n\n", sc.toString(),
 				Hand.getHand(hand).toString(), Category.values()[bestCat]);
