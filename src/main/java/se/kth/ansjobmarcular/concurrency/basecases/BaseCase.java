@@ -54,7 +54,7 @@ public class BaseCase extends ParallellAction {
 				/*
 				 * For every possible combination of holding the dice.
 				 */
-				for (int mask = 0; mask <= 0x1F; mask++) {
+				for (int mask = 0; mask <= Hand.MAX_MASK; mask++) {
 					double score = 0;
 					/*
 					 * For every possible outcome hand.

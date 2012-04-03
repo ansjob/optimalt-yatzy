@@ -20,12 +20,12 @@ public class MemoryActionsStorage implements ActionsStorage {
 
     @Override
     public byte suggestMarking(Hand currentHand, ScoreCard currentScore) {
-        return storage[3][currentHand.getIndex()][currentScore.getIndex()];
+        return storage[2][currentHand.getIndex()][currentScore.getIndex()];
     }
 
     @Override
     public void addMarkingAction(byte action, ScoreCard currentScore, Hand hand) {
-        storage[3][hand.getIndex()][currentScore.getIndex()] = (byte) action;
+        storage[2][hand.getIndex()][currentScore.getIndex()] = (byte) action;
     }
 
     @Override
