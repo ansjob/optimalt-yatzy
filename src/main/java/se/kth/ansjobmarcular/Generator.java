@@ -188,15 +188,15 @@ public class Generator {
                 for (int roll = 0; roll <= 3; roll++) {
                     int action;
                     if (roll == 3){
-                        action = db.suggestMarking(h, sc).getIndex();
+                        action = db.suggestMarking(h, sc);
                     }else {
-                        action = db.suggestRoll(h, sc, roll).getIndex();
+                        action = db.suggestRoll(h, sc, roll);
                     }
                     for (int upperTotal = 1; upperTotal <= 63; upperTotal++, sc.addScore(1)){
                         if (roll==3)
-                            db.addMarkingAction(new MarkingAction(action), sc, h);
+                            db.addMarkingAction((byte) action, sc, h);
                         else
-                            db.addRollingAction(new RollingAction(action), sc, h, roll);
+                            db.addRollingAction((byte) action, sc, h, roll);
                     }
                 }
                 System.out.printf("Copied everything for %s with hand %s\n", c, h.toString());
@@ -214,15 +214,15 @@ public class Generator {
             for (int roll = 0; roll <= 3; roll++) {
                 int action;
                 if (roll == 3){
-                    action = db.suggestMarking(h, sc).getIndex();
+                    action = db.suggestMarking(h, sc);
                 } else {
-                    action = db.suggestRoll(h, sc, roll).getIndex();
+                    action = db.suggestRoll(h, sc, roll);
                 }
                 for (int upperTotal = 1; upperTotal <= 63; upperTotal++, sc.addScore(1)){
                     if (roll==3)
-                        db.addMarkingAction(new MarkingAction(action), sc, h);
+                        db.addMarkingAction((byte) action, sc, h);
                     else
-                        db.addRollingAction(new RollingAction(action), sc, h, roll);
+                        db.addRollingAction((byte) action, sc, h, roll);
                 }
             }
             System.out.printf("Copied everything for %s with hand %s\n", sc, h.toString());

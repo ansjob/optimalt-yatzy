@@ -10,7 +10,7 @@ package se.kth.ansjobmarcular;
  */
 public class MemoryActionsStorage implements ActionsStorage {
 
-    private byte[][][] storage = new byte[4][Hand.MAX_INDEX+1][ScoreCard.MAX_INDEX+1];
+    private byte[][][] storage = new byte[3][Hand.MAX_INDEX+1][ScoreCard.MAX_INDEX+1];
 
 
     @Override

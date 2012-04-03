@@ -21,28 +21,28 @@ public class FileActionsStorage implements ActionsStorage {
 		}
 	}
 
-	public RollingAction suggestRoll(Hand currentHand, ScoreCard currentScore,
+	public byte suggestRoll(Hand currentHand, ScoreCard currentScore,
 			int roll) {
 		long index = getIndex(currentScore, currentHand, roll);
 		int b = getByte(index);
-		return new RollingAction(b);
+		return (byte) b;
 	}
 
-	public MarkingAction suggestMarking(Hand currentHand, ScoreCard currentScore) {
+	public byte suggestMarking(Hand currentHand, ScoreCard currentScore) {
 		long index = getIndex(currentScore, currentHand, 3);
-		return new MarkingAction(getByte(index));
+		return (byte) getByte(index);
 	}
 
-	public void addMarkingAction(MarkingAction action, ScoreCard currentScore,
+	public void addMarkingAction(byte action, ScoreCard currentScore,
 			Hand hand) {
 		long index = getIndex(currentScore, hand, 3);
-		putByte(index, action.getIndex());
+		putByte(index, action);
 	}
 
-	public void addRollingAction(RollingAction action, ScoreCard currentScore,
+	public void addRollingAction(byte action, ScoreCard currentScore,
 			Hand hand, int roll){
 		long index = getIndex(currentScore, hand, roll);
-		putByte(index, action.getIndex());
+		putByte(index, action);
 	}
 
 	public void putExpectedScore(double expected, ScoreCard currentScore,
