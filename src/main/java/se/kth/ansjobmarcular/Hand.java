@@ -18,6 +18,7 @@ import org.apache.commons.math.util.MathUtils;
 public class Hand {
 	public static final int MAX_INDEX = 252;
 	public static final int MAX_MASK = 0x1f;
+	public static final int MAX_KEEPER = 462;
 	public static final int SIZE = 5;
 	private final int dice[];
 

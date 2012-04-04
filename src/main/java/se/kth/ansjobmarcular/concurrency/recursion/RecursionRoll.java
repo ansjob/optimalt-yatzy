@@ -6,9 +6,13 @@ package se.kth.ansjobmarcular.concurrency.recursion;
 
 import java.util.Map;
 
+import org.apache.commons.math.util.MathUtils;
+
 import se.kth.ansjobmarcular.ActionsStorage;
 import se.kth.ansjobmarcular.Hand;
+import se.kth.ansjobmarcular.Keeper;
 import se.kth.ansjobmarcular.ScoreCard;
+import se.kth.ansjobmarcular.Utils;
 import se.kth.ansjobmarcular.concurrency.ParallellAction;
 
 /**
@@ -69,8 +73,30 @@ public class RecursionRoll extends ParallellAction {
 		/*
 		 * Save the optimal action for the state.
 		 */
-		db.addRollingAction((byte) bestMask, sc,
-				Hand.getHand(hand), roll - 1);
+		db.addRollingAction((byte) bestMask, sc, Hand.getHand(hand), roll - 1);
 		return null;
+	}
+
+	public void blah() {
+		double[] K = new double[Keeper.MAX_INDEX];
+
+		for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+			Hand h = Hand.getHand(hand);
+			K[new Keeper(h, 0x1f).getIndex()] = workingVals[roll + 1][hand].get(sc);
+			
+			for (int held = 4; held >= 0; held--) {
+				for (boolean way[] : Utils.allWaysToPut(held, 5)) {
+					int mask = Utils.fromBooleanArray(way);
+					Keeper k = new Keeper(h, mask);
+					
+					double sum = 0;
+					for (int d = 1; d <= 6; d++) {
+						Keeper otherK = k.add(d);
+						sum += K[otherK.getIndex()];
+					}
+					K[k.getIndex()] = sum;
+				}
+			}
+		}
 	}
 }

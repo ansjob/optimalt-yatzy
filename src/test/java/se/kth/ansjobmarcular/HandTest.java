@@ -26,6 +26,9 @@ public class HandTest {
 				}
 			}
 		}
+		
+		assertEquals(1, new Hand(1, 1, 1, 1, 1).getIndex());
+		assertEquals(Hand.MAX_INDEX, new Hand(6, 6, 6, 6, 6).getIndex());
 	}
 
 	@Test
