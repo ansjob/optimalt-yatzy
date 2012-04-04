@@ -1,6 +1,8 @@
 package se.kth.ansjobmarcular;
 
+import java.text.DateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,7 +20,7 @@ public class Generator {
 	 * The array containing the optimal strategy.
 	 */
 	private Map<ScoreCard, Double>[][] expectedScores, workingVals;
-	private ActionsStorage db = new MemoryActionsStorage();
+	private ActionsStorage db = new FileActionsStorage();
 	private ExecutorService runner = Executors.newFixedThreadPool(128);
 
 	@SuppressWarnings("unchecked")
@@ -156,6 +158,9 @@ public class Generator {
 			 * expectedScores for the next round.
 			 */
 			expectedScores = workingVals;
+
+			DateFormat df = DateFormat.getDateInstance();
+			System.out.printf("[%s] Done with recursion step %d\n ", df.format(new Date()) ,14 - filled);
 		}
 
 		/* Print the expected score for a Yatzy game. */
