@@ -12,7 +12,6 @@ import java.util.concurrent.Executors;
 
 import se.kth.ansjobmarcular.concurrency.basecases.BaseCase;
 import se.kth.ansjobmarcular.concurrency.recursion.RecursionFinalHand;
-import se.kth.ansjobmarcular.concurrency.recursion.RecursionRoll;
 
 public class Generator {
 
@@ -20,7 +19,7 @@ public class Generator {
 	 * The array containing the optimal strategy.
 	 */
 	private Map<ScoreCard, Double>[][] expectedScores, workingVals;
-	private ActionsStorage db = new FileActionsStorage();
+	private ActionsStorage db = new MemoryActionsStorage();
 	private ExecutorService runner = Executors.newFixedThreadPool(128);
 
 	@SuppressWarnings("unchecked")
@@ -139,12 +138,46 @@ public class Generator {
 						/*
 						 * If roll 0-2, for every hand:
 						 */
-						List<RecursionRoll> tasks = new LinkedList<RecursionRoll>();
+						double[] K = new double[Keeper.MAX_INDEX];
 						for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-							tasks.add(new RecursionRoll(roll, hand, sc, db,
-									expectedScores, workingVals));
+							K[new Keeper(Hand.getHand(hand), 0x1f).getIndex()] = workingVals[roll + 1][hand]
+									.get(sc);
 						}
-						runner.invokeAll(tasks);
+
+						for (int held = 4; held >= 0; held--) {
+							for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+								Hand h = Hand.getHand(hand);
+								int bestMask = 0;
+								double maxK = 0;
+								for (Keeper k : Keeper.getKeepers(held)) {
+									if (k.getCount() != held)
+										throw new PanicException(k.getCount()
+												+ " != " + held);
+
+									double sum = 0;
+									for (int d = 1; d <= 6; d++) {
+										Keeper otherK = k.add(d);
+										sum += K[otherK.getIndex()];
+									}
+									sum /= 6.0;
+									K[k.getIndex()] = sum;
+									if (sum > maxK && k.getMask(h) != -1) {
+										maxK = sum;
+										bestMask = k.getMask(h);
+									}
+								}								
+								/*
+								 * Now let's save the expected score and optimal
+								 * action for this roll
+								 */
+								workingVals[roll][hand].put(sc, maxK);
+								db.addRollingAction((byte) bestMask, sc, h, roll);
+								
+								Utils.debug("RollingAction: %s \n %s roll: %d -> %x E = %.2f\n\n",
+										sc.getUnFilled(), h.toString(),
+										roll, bestMask, maxK);
+							}
+						}
 					}
 					if (!hasUpperFree) {
 						copyResults(sc);
@@ -160,11 +193,13 @@ public class Generator {
 			expectedScores = workingVals;
 
 			DateFormat df = DateFormat.getDateInstance();
-			System.out.printf("[%s] Done with recursion step %d\n ", df.format(new Date()) ,14 - filled);
+			System.out.printf("[%s] Done with recursion step %d\n ", df
+					.format(new Date()), 14 - filled);
 		}
 
 		/* Print the expected score for a Yatzy game. */
-		System.out.printf("Expected total score: %.2f\n", expectedScores[0][1].get(new ScoreCard()));
+		System.out.printf("Expected total score: %.2f\n", expectedScores[0][1]
+				.get(new ScoreCard()));
 
 		/* Close the storage. */
 		db.close();
