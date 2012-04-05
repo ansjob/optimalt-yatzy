@@ -406,22 +406,23 @@ public class ScoreCard {
 	 * @return Score.
 	 */
 	private int scorePair(Hand hand, int no) {
-		int max[] = new int[no];
+		int max = 0;
 		int prev = 0;
-		int idx = 0;
-
-		for (int i : hand.getDice()) {
-			if (prev == i && max[idx] < i) {
-				max[idx++] = i;
-				idx = (idx + 1) % no;
+		int used = 0;
+		int score = 0;
+		
+		for (; no > 0; no--) {
+			for (int i : hand.getDice()) {
+				if (prev == i && max < i && i != used) {
+					max = i;
+				}
+				prev = i;
 			}
-			prev = i;
+			used = max;
+			score += max * 2;
+			max = 0;
 		}
-
-		if (no == 2)
-			return (max[0] * 2 + max[1] * 2);
-		else
-			return (max[0] * 2);
+		return score;
 	}
 
 	/**

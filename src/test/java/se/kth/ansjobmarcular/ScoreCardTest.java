@@ -103,6 +103,9 @@ public class ScoreCardTest {
 		assertEquals(12, sc.value(new Hand(4, 6, 4, 4, 6), Category.PAIR));
 		assertEquals(6, sc.value(new Hand(3, 2, 3, 1, 3), Category.PAIR));
 		assertEquals(0, sc.value(new Hand(1, 2, 3, 4, 5), Category.PAIR));
+		
+		assertEquals(22, sc.value(new Hand(3, 5, 5, 6, 6), Category.TWOPAIR));
+		assertEquals(14, sc.value(new Hand(3, 3, 4, 4, 5), Category.TWOPAIR));
 	}
 
 	@Test
