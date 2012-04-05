@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 import se.kth.ansjobmarcular.ActionsStorage;
 import se.kth.ansjobmarcular.Category;
 import se.kth.ansjobmarcular.Hand;
+import se.kth.ansjobmarcular.Keeper;
 import se.kth.ansjobmarcular.ScoreCard;
 import se.kth.ansjobmarcular.Utils;
 import se.kth.ansjobmarcular.concurrency.ParallellAction;
@@ -48,63 +49,49 @@ public class BaseCase extends ParallellAction {
 			}
 
 			/* If roll 0-2 */
-			for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-				double max = 0;
-				int bestMask = 0;
-				Hand h = Hand.getHand(hand);
-				/*
-				 * For every possible combination of holding the dice.
-				 */
-				for (int mask = 0; mask <= Hand.MAX_MASK; mask++) {
-					double score = 0;
-					/*
-					 * For every possible outcome hand.
-					 */
-					for (Hand destHand : h.getPossibleOutcomes(mask)) {
-						double prob = Hand.getHand(hand).probability(destHand,
-								mask);
-						double expected = expectedScores[roll + 1][destHand
-								.getIndex()].get(sc);
-						score += prob * expected;
+
+			/* Doing the keepers trick here! */
+
+			/* Base case: all dice are held: */
+			double[] K = new double[Keeper.MAX_INDEX];
+			for (Keeper k : Keeper.getKeepers(5)) {
+				K[k.getIndex()] = expectedScores[3][k.getHand().getIndex()]
+						.get(sc);
+			}
+
+			/* "Dynamic" step: for each amount of dice to throw... */
+			for (int held = 4; held >= 0; held--) {
+				for (Keeper k : Keeper.getKeepers(held)) {
+					double sum = 0;
+					for (int d = 1; d <= 6; d++) {
+						sum += K[k.add(d).getIndex()];
 					}
-					/*
-					 * If this score beats the maximum, remember which dice to
-					 * hold.
-					 */
-					if (score >= max) {
-						max = score;
+					sum /= 6.0;
+					K[k.getIndex()] = sum;
+				}
+			}
+
+			for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+				Hand h = Hand.getHand(hand);
+				int bestMask = 0;
+				double bestScore = 0;
+				for (int mask = 0; mask <= Hand.MAX_MASK; mask++) {
+					Keeper k = new Keeper(h, mask);
+					if (K[k.getIndex()] > bestScore) {
+						bestScore = K[k.getIndex()];
 						bestMask = mask;
 					}
-					/*
-					 * You can't hold/save dice you never rolled.
-					 */
-					if (roll == 0)
-						break;
 				}
-
-				/*
-				 * Remember the expected score, and action for this combination
-				 * of holding.
-				 */
-				expectedScores[roll][hand].put(sc, max);
-
-				/* There's no action before rolling the first hand. */
-				if (roll == 0)
-					break;
-
-				/*
-				 * Save the optimal action.
-				 */
-				db.addRollingAction((byte) bestMask, sc,
-						Hand.getHand(hand), roll - 1);
-				Utils.debug("Base case: %s \tUppertotal: %d \tHand %s \tMask: 0x%x \tRoll: %d \tExpected score %.2f\n",
-								cat, sc.getUpper(), Hand.getHand(hand),
-								bestMask, roll, max);
+				expectedScores[roll][hand].put(sc, bestScore);
+				db.addRollingAction((byte) bestMask, sc, h, roll);
+				Utils.debug("R: %d\t SC: %s\t%s\t %x -> %.2f\n", roll, sc,
+						h, bestMask, bestScore);
 			}
+
 		}
-		Utils.debug(
-				"Generated all base cases for %s with upperTotal %d\n", cat,
-				upperTotal);
+
+		Utils.debug("Generated all base cases for %s with upperTotal %d\n",
+				cat, upperTotal);
 		return null;
 	}
 }

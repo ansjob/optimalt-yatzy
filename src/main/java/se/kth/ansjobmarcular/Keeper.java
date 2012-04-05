@@ -117,6 +117,26 @@ public class Keeper {
 	public int getIndex() {
 		return indexes.get(this);
 	}
+	
+	public Hand getHand() {
+		if (count != 5) {
+			throw new IllegalArgumentException("Tried to do getHand when count was " + count);
+		}
+		int[] hand = new int[5];
+		int c = count, i = 0, d = 1;
+		int[] ldice = Arrays.copyOf(dice, dice.length);
+		while (c > 0) {
+			if (ldice[d] > 0) {
+				hand[i++] = d;
+				ldice[d]--;
+				c--;
+			} else {
+				d++;
+			}
+		}
+		return new Hand(hand[0],hand[1], hand[2], hand[3], hand[4]);
+		
+	}
 
 	public Keeper getKeeper(int index) {
 		return keepers[index];

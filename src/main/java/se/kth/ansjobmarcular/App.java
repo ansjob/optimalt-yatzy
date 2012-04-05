@@ -15,6 +15,7 @@ public class App {
 		System.out.println("Generating base cases..");
 		gen.generateBaseCases();
 		System.out.println("Generating other cases..");
-		gen.generate();
+		gen = null;
+		//gen.generate();
 	}
 }

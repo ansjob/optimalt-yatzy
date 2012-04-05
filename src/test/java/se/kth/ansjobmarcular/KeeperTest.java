@@ -2,6 +2,7 @@ package se.kth.ansjobmarcular;
 
 import static org.junit.Assert.*;
 
+import org.apache.commons.math.util.MathUtils;
 import org.junit.Test;
 
 import se.kth.ansjobmarcular.Hand;
@@ -48,29 +49,30 @@ public class KeeperTest {
 		K[new Keeper(new Hand(1, 2, 3, 4, 5), 0x1f).getIndex()] = 15;
 
 		Hand h = new Hand(1, 2, 2, 4, 6);
-		
-		generalKeeperTest(K, 26, 15.0/18.0, h);
+
+		generalKeeperTest(K, 26, 15.0 / 18.0, h);
 	}
-	
+
 	@Test
 	public void testSingleDieRoll() {
 		double[] K = new double[Keeper.MAX_INDEX];
-		Hand target = new Hand (1,2,3,4,5);
-		
+		Hand target = new Hand(1, 2, 3, 4, 5);
+
 		K[new Keeper(target, 0x1f).getIndex()] = 15;
-		
-		Hand h = new Hand(1,6,6,6,6); 
-		
+
+		Hand h = new Hand(1, 6, 6, 6, 6);
+
 		int expectedMask = 0x10;
-		
+
 		double possibleOutComes = Math.pow(6, 4);
-		double successful = 256;
-		
-		generalKeeperTest(K, expectedMask, (successful / possibleOutComes) * 15, h);
+		double successful = MathUtils.factorialDouble(4);
+
+		generalKeeperTest(K, expectedMask,
+				(successful / possibleOutComes) * 15, h);
 	}
-	
+
 	private void generalKeeperTest(double[] K, int expBest, double expMax,
-			Hand h ) {
+			Hand h) {
 		double maxK = 0;
 		int bestMask = 0x1f;
 		for (int held = 4; held >= 0; held--) {
@@ -93,6 +95,23 @@ public class KeeperTest {
 		}
 		assertEquals(expBest, bestMask);
 		assertEquals(expMax, maxK, 0.001);
+	}
+
+	@Test
+	public void testGetHand() {
+		Hand h = new Hand(1, 2, 3, 4, 5);
+		Keeper k = new Keeper(h, 0x1f);
+
+		int[] expected = h.getDice();
+		int[] actual = k.getHand().getDice();
+		assertArrayEquals(expected, actual);
+		for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+			h = Hand.getHand(hand);
+			k = new Keeper(h, 0x1f);
+			expected = h.getDice();
+			actual = k.getHand().getDice();
+			assertArrayEquals(expected, actual);
+		}
 	}
 
 }
