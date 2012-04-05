@@ -360,10 +360,10 @@ public class ScoreCard {
 	 */
 	private int scoreStraight(Hand hand, Category type) {
 		if (type == Category.SMALLSTRAIGHT
-				&& Arrays.equals(hand.getDice(), new int[] { 1, 2, 3, 4, 5 }))
+				&& Arrays.equals(hand.getDice(), new byte[] { 1, 2, 3, 4, 5 }))
 			return 15;
 		if (type == Category.LARGESTRAIGHT
-				&& Arrays.equals(hand.getDice(), new int[] { 2, 3, 4, 5, 6 }))
+				&& Arrays.equals(hand.getDice(), new byte[] { 2, 3, 4, 5, 6 }))
 			return 20;
 		return 0;
 	}

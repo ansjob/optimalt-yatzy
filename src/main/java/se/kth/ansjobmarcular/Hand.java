@@ -19,22 +19,22 @@ public class Hand {
 	public static final int MAX_INDEX = 252;
 	public static final int MAX_MASK = 0x1f;
 	public static final int MAX_KEEPER = 462;
-	public static final int SIZE = 5;
-	private final int dice[];
+	public static final byte SIZE = 5;
+	private final byte dice[];
 
 	public Hand(int a, int b, int c, int d, int e) {
-		dice = new int[SIZE];
-		this.dice[0] = a;
-		this.dice[1] = b;
-		this.dice[2] = c;
-		this.dice[3] = d;
-		this.dice[4] = e;
+		dice = new byte[SIZE];
+		this.dice[0] = (byte) a;
+		this.dice[1] = (byte) b;
+		this.dice[2] = (byte) c;
+		this.dice[3] = (byte) d;
+		this.dice[4] = (byte) e;
 		Arrays.sort(this.dice);
 	}
 
 	public Hand[] getPossibleOutcomes(int holdMask) {
 		int outcomes;
-		int[] counts = new int[6];
+		byte[] counts = new byte[6];
 		Hand[] res;
 		List<Integer> rolledIdxs = new ArrayList<Integer>(5);
 
@@ -57,7 +57,7 @@ public class Hand {
 		res = new Hand[outcomes];
 
 		/* Initialize a buffer with 1's for the dice to be rolled.*/
-		int[] prevBuf = Arrays.copyOf(dice, 5);
+		byte[] prevBuf = Arrays.copyOf(dice, 5);
 		for (Integer rolledIdx : rolledIdxs) {
 			prevBuf[rolledIdx] = 1;
 		}
@@ -67,7 +67,7 @@ public class Hand {
 		res[0] = new Hand(prevBuf[0], prevBuf[1], prevBuf[2], prevBuf[3], prevBuf[4]);
 
 		for (int outcome = 1; outcome<outcomes; outcome++) {
-			int[] buf = Arrays.copyOf(prevBuf, 5);
+			byte[] buf = Arrays.copyOf(prevBuf, 5);
 
 			/* Now let's fill the first n dice with something smart.
 			 * we want to go from something like 1, 1, 1 -> 2, 1, 1
@@ -90,7 +90,7 @@ public class Hand {
 		return res;
 	}
 
-	public int[] getDice() {
+	public byte[] getDice() {
 		return dice;
 	}
 
@@ -112,9 +112,9 @@ public class Hand {
 	}
 
 	public double probability(Hand other, int holdMask) {
-		int[] desired = new int[7];
-		int[] held = new int[7];
-		int[] needed = new int[7];
+		byte[] desired = new byte[7];
+		byte[] held = new byte[7];
+		byte[] needed = new byte[7];
 		int rolled = 0;
 		int s = 1;
 		int d;
@@ -135,7 +135,7 @@ public class Hand {
 			if (held[i] > desired[i]) {
 				return 0;
 			} else if (held[i] < desired[i]) {
-				needed[i] = desired[i] - held[i];
+				needed[i] = (byte) (desired[i] - held[i]);
 			}
 		}
 

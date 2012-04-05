@@ -14,8 +14,8 @@ public class Keeper {
 	private static List<Keeper>[] keepersM = (List<Keeper>[]) new List<?>[6];
 	
 	private static Map<Keeper, Integer> indexes = new HashMap<Keeper, Integer>();
-	private int count = 0;
-	private int[] dice = new int[7];
+	private byte count = 0;
+	private byte[] dice = new byte[7];
 
 	private Keeper() {
 
@@ -26,11 +26,11 @@ public class Keeper {
 			keepersM[j] = new ArrayList<Keeper>(Hand.MAX_INDEX);
 		}
 		int i = 0;
-		for (int a = 0; a <= 6; a++) {
-			for (int b = a; b <= 6; b++) {
-				for (int c = b; c <= 6; c++) {
-					for (int d = c; d <= 6; d++) {
-						for (int e = d; e <= 6; e++) {
+		for (byte a = 0; a <= 6; a++) {
+			for (byte b = a; b <= 6; b++) {
+				for (byte c = b; c <= 6; c++) {
+					for (byte d = c; d <= 6; d++) {
+						for (byte e = d; e <= 6; e++) {
 							Keeper k = new Keeper(a, b, c, d, e);
 							keepers[i] = k;
 							//Utils.debug("Generated keeper[%d]: %s\n", i, keepers[i]);
@@ -71,10 +71,10 @@ public class Keeper {
 		return true;
 	}
 
-	public int getMask(Hand hand) {
-		int mask = 0;
-		int[] h = hand.getDice();
-		int local[] = Arrays.copyOf(dice, dice.length);
+	public byte getMask(Hand hand) {
+		byte mask = 0;
+		byte[] h = hand.getDice();
+		byte local[] = Arrays.copyOf(dice, dice.length);
 		
 		int i = 0;
 		int c = count;
@@ -100,7 +100,7 @@ public class Keeper {
 
 	public Keeper add(int d) {
 		Keeper other = new Keeper();
-		other.count = this.count + 1;
+		other.count = (byte) (this.count + 1);
 		other.dice = Arrays.copyOf(this.dice, this.dice.length);
 		other.dice[d]++;
 		return other;
@@ -110,7 +110,7 @@ public class Keeper {
 		return count;
 	}
 
-	public int[] getDice() {
+	public byte[] getDice() {
 		return dice;
 	}
 
@@ -122,9 +122,9 @@ public class Keeper {
 		if (count != 5) {
 			throw new IllegalArgumentException("Tried to do getHand when count was " + count);
 		}
-		int[] hand = new int[5];
-		int c = count, i = 0, d = 1;
-		int[] ldice = Arrays.copyOf(dice, dice.length);
+		byte[] hand = new byte[5];
+		byte c = count, i = 0, d = 1;
+		byte[] ldice = Arrays.copyOf(dice, dice.length);
 		while (c > 0) {
 			if (ldice[d] > 0) {
 				hand[i++] = d;
@@ -143,7 +143,7 @@ public class Keeper {
 	}
 
 	public Keeper(Hand hand, int mask) {
-		int[] tmp = hand.getDice();
+		byte[] tmp = hand.getDice();
 		for (int i = 0; i < 5; i++) {
 			if ((mask & (1 << (4 - i))) != 0) {
 				dice[tmp[i]]++;
@@ -152,7 +152,7 @@ public class Keeper {
 		}
 	}
 
-	public Keeper(int a, int b, int c, int d, int e) {
+	public Keeper(byte a, byte b, byte c, byte d, byte e) {
 		if (a != 0) {
 			count++;
 			dice[a]++;

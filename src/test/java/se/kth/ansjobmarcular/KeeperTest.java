@@ -12,15 +12,15 @@ public class KeeperTest {
 
 	@Test
 	public void testGetMask() {
-		Keeper k = new Keeper(1, 2, 3, 4, 0);
+		Keeper k = new Keeper((byte)1, (byte)2, (byte)3, (byte)4, (byte)0);
 		Hand h = new Hand(1, 1, 2, 3, 4);
 		assertEquals(23, k.getMask(h));
 
-		k = new Keeper(6, 6, 0, 0, 0);
+		k = new Keeper((byte)6, (byte)6, (byte)0, (byte)0, (byte)0);
 		h = new Hand(1, 2, 6, 6, 6);
 		assertEquals(6, k.getMask(h));
 
-		k = new Keeper(1, 2, 5, 0, 0);
+		k = new Keeper((byte)1, (byte)2, (byte)5, (byte)0, (byte)0);
 		h = new Hand(1, 1, 2, 4, 5);
 		assertEquals(21, k.getMask(h));
 		h = new Hand(1, 1, 2, 5, 6);
@@ -102,8 +102,8 @@ public class KeeperTest {
 		Hand h = new Hand(1, 2, 3, 4, 5);
 		Keeper k = new Keeper(h, 0x1f);
 
-		int[] expected = h.getDice();
-		int[] actual = k.getHand().getDice();
+		byte[] expected = h.getDice();
+		byte[] actual = k.getHand().getDice();
 		assertArrayEquals(expected, actual);
 		for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
 			h = Hand.getHand(hand);
