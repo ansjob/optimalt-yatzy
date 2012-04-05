@@ -2,7 +2,6 @@ package se.kth.ansjobmarcular;
 
 import static org.junit.Assert.*;
 
-import org.apache.commons.math.util.MathUtils;
 import org.junit.Test;
 
 import se.kth.ansjobmarcular.Hand;

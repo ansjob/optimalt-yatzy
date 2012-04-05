@@ -6,8 +6,6 @@ package se.kth.ansjobmarcular.concurrency.recursion;
 
 import java.util.Map;
 
-import org.apache.commons.math.util.MathUtils;
-
 import se.kth.ansjobmarcular.ActionsStorage;
 import se.kth.ansjobmarcular.Hand;
 import se.kth.ansjobmarcular.Keeper;
