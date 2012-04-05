@@ -11,7 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import se.kth.ansjobmarcular.concurrency.basecases.BaseCase;
-import se.kth.ansjobmarcular.concurrency.recursion.RecursionFinalHand;
+import se.kth.ansjobmarcular.concurrency.recursion.RollCase;
 
 public class Generator {
 
@@ -38,7 +38,6 @@ public class Generator {
 	}
 
 	public void generateBaseCases() throws InterruptedException {
-		long startTime = System.currentTimeMillis();
 
 		/*
 		 * For every last (unfilled) category.
@@ -67,12 +66,10 @@ public class Generator {
 		}
 		runner.invokeAll(tasks);
 		copyResults();
-		long time = System.currentTimeMillis() - startTime;
-		Utils.debug("Generated base cases in %d ms\n", time);
 	}
 
 	@SuppressWarnings("unchecked")
-	public void generate() throws InterruptedException {
+	public void generate() throws InterruptedException, CloneNotSupportedException {
 		boolean[][] ways;
 		ScoreCard sc;
 
@@ -95,6 +92,7 @@ public class Generator {
 			/*
 			 * For every way the scorecard may be filled when we get here
 			 */
+			List<RollCase> tasks = new LinkedList<RollCase>();
 			ways = Utils.allWaysToPut(filled, 15);
 			for (boolean[] way : ways) {
 				/*
@@ -115,76 +113,12 @@ public class Generator {
 				 */
 				for (int upperTotal = 0; upperTotal < 64; upperTotal++, sc
 						.addScore(1)) {
-					/*
-					 * For every roll from 3 to 0 for this scorecard.
-					 */
-					for (int roll = 3; roll >= 0; roll--) {
-						/*
-						 * If last roll.
-						 */
-						if (roll == 3) {
-							/*
-							 * For every possible hand.
-							 */
-							List<RecursionFinalHand> tasks = new LinkedList<RecursionFinalHand>();
-							for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-								tasks.add(new RecursionFinalHand(hand, sc,
-										hand, db, expectedScores, workingVals));
-							}
-							runner.invokeAll(tasks);
-							continue;
-						}
-
-						/*
-						 * If roll 0-2, for every hand:
-						 */
-						double[] K = new double[Keeper.MAX_INDEX];
-						for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-							K[new Keeper(Hand.getHand(hand), 0x1f).getIndex()] = workingVals[roll + 1][hand]
-									.get(sc);
-						}
-
-						for (int held = 4; held >= 0; held--) {
-							for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
-								Hand h = Hand.getHand(hand);
-								int bestMask = 0;
-								double maxK = 0;
-								for (Keeper k : Keeper.getKeepers(held)) {
-									if (k.getCount() != held)
-										throw new PanicException(k.getCount()
-												+ " != " + held);
-
-									double sum = 0;
-									for (int d = 1; d <= 6; d++) {
-										Keeper otherK = k.add(d);
-										sum += K[otherK.getIndex()];
-									}
-									sum /= 6.0;
-									K[k.getIndex()] = sum;
-									if (sum > maxK && k.getMask(h) != -1) {
-										maxK = sum;
-										bestMask = k.getMask(h);
-									}
-								}								
-								/*
-								 * Now let's save the expected score and optimal
-								 * action for this roll
-								 */
-								workingVals[roll][hand].put(sc, maxK);
-								db.addRollingAction((byte) bestMask, sc, h, roll);
-								
-								Utils.debug("RollingAction: %s \n %s roll: %d -> %x E = %.2f\n\n",
-										sc.getUnFilled(), h.toString(),
-										roll, bestMask, maxK);
-							}
-						}
-					}
-					if (!hasUpperFree) {
-						copyResults(sc);
-						break;
-					}
+					ScoreCard tmpsc = (ScoreCard) sc.clone();
+					tmpsc.addScore(upperTotal);
+					tasks.add(new RollCase(expectedScores, workingVals, tmpsc, db));
 				}
 			}
+			runner.invokeAll(tasks);
 			/*
 			 * Forget the last round's expected scores, we don't need them
 			 * anymore. Also, make the (now complete) workingVals the
@@ -273,6 +207,10 @@ public class Generator {
 			Utils.debug("Copied everything for %s with hand %s\n", sc, h
 					.toString());
 		}
+	}
+	
+	public void close() {
+		runner.shutdownNow();
 	}
 
 }

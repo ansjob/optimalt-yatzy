@@ -55,7 +55,7 @@ public class BaseCase extends ParallellAction {
 			/* Base case: all dice are held: */
 			double[] K = new double[Keeper.MAX_INDEX];
 			for (Keeper k : Keeper.getKeepers(5)) {
-				K[k.getIndex()] = expectedScores[3][k.getHand().getIndex()]
+				K[k.getIndex()] = expectedScores[roll+1][k.getHand().getIndex()]
 						.get(sc);
 			}
 
