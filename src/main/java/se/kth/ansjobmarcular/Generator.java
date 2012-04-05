@@ -20,7 +20,7 @@ public class Generator {
 	 */
 	private Map<ScoreCard, Double>[][] expectedScores, workingVals;
 	private ActionsStorage db = new MemoryActionsStorage();
-	private ExecutorService runner = Executors.newFixedThreadPool(32);
+	private ExecutorService runner = Executors.newFixedThreadPool(100);
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
@@ -126,7 +126,7 @@ public class Generator {
 			 */
 			expectedScores = workingVals;
 
-			DateFormat df = DateFormat.getDateInstance();
+			DateFormat df = DateFormat.getDateTimeInstance();
 			System.out.printf("[%s] Done with recursion step %d\n ", df
 					.format(new Date()), 14 - filled);
 		}
@@ -208,7 +208,7 @@ public class Generator {
 					.toString());
 		}
 	}
-	
+
 	public void close() {
 		runner.shutdownNow();
 	}

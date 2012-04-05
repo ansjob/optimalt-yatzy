@@ -87,9 +87,7 @@ public class BaseCase extends ParallellAction {
 				Utils.debug("R: %d\t SC: %s\t%s\t %x -> %.2f\n", roll, sc,
 						h, bestMask, bestScore);
 			}
-
 		}
-
 		Utils.debug("Generated all base cases for %s with upperTotal %d\n",
 				cat, upperTotal);
 		return null;
