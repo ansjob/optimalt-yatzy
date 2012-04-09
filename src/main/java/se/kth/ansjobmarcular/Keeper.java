@@ -1,19 +1,15 @@
 package se.kth.ansjobmarcular;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @SuppressWarnings("unchecked")
 public class Keeper {
 	public static final int MAX_INDEX = 462;
-	private static Keeper[] keepers = new Keeper[MAX_INDEX];
+	private final static Keeper[] keepers = new Keeper[MAX_INDEX];
 
-	private static List<Keeper>[] keepersM = (List<Keeper>[]) new List<?>[6];
+	private final static List<Keeper>[] keepersM = (List<Keeper>[]) new List<?>[6];
 
-	private static Map<Keeper, Integer> indexes = new HashMap<Keeper, Integer>();
+	private final static Map<Keeper, Integer> indexes = new HashMap<Keeper, Integer>();
 	private byte count = 0;
 	private byte[] dice = new byte[6];
 

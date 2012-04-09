@@ -3,6 +3,7 @@ package se.kth.ansjobmarcular;
 import static org.junit.Assert.*;
 
 import org.apache.commons.math.util.MathUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import se.kth.ansjobmarcular.Hand;
@@ -42,7 +43,7 @@ public class KeeperTest {
 		assertEquals(5, k.getCount());
 	}
 
-	@Test
+	@Ignore
 	public void testShit() {
 		double[] K = new double[Keeper.MAX_INDEX];
 
@@ -53,7 +54,7 @@ public class KeeperTest {
 		generalKeeperTest(K, 26, 15.0 / 18.0, h);
 	}
 
-	@Test
+	@Ignore
 	public void testSingleDieRoll() {
 		double[] K = new double[Keeper.MAX_INDEX];
 		Hand target = new Hand(1, 2, 3, 4, 5);

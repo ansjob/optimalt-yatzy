@@ -15,14 +15,14 @@ public class Generator {
 	private Map<ScoreCard, Double>[][] workingVals;
 	private Map<ScoreCard, Double> expectedScores;
 	private ActionsStorage db = new MemoryActionsStorage();
-	private ExecutorService runner = Executors.newFixedThreadPool(4);
+	private ExecutorService runner = Executors.newFixedThreadPool(16);
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
-		workingVals = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][Hand.MAX_INDEX + 1];
+		workingVals = (Map<ScoreCard, Double>[][]) new Map<?, ?>[3][Hand.MAX_INDEX + 1];
 		expectedScores = new HashMap<ScoreCard, Double>();
 
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j <= Hand.MAX_INDEX; j++) {
 				workingVals[i][j] = Collections
 						.synchronizedMap(new HashMap<ScoreCard, Double>(6435));
@@ -122,7 +122,6 @@ public class Generator {
 			 */
 			for (int i = 0; i < workingVals.length; i++) {
 				for (int j = 0; j < workingVals[i].length; j++) {
-					workingVals[i][j].clear();
 					workingVals[i][j] = null;
 				}
 			}
