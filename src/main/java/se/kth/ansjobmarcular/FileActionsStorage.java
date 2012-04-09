@@ -62,24 +62,25 @@ public class FileActionsStorage implements ActionsStorage {
 		return idx;
 	}
 
-	private void putByte(long index, int b) {
+	private synchronized void putByte(long index, int b) {
 		try {
-			fp.seek(index);
-			fp.writeByte(b);
-		} catch (IOException e){
-			e.printStackTrace();
-		}
+            fp.seek(index);
+            fp.writeByte(b);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
 	}
 
-	private int getByte(long index) {
-		try {
-			fp.seek(index);
-			return fp.read();
-		} catch (IOException e) {
-			e.printStackTrace();
-			System.exit(-1);
-			return -1;
-		}
+	private synchronized int getByte(long index)  {
+        try {
+        fp.seek(index);
+        return fp.read();
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(-1);
+            return -1;
+        }
 	}
 
 	public void close() {

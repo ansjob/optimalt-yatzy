@@ -140,6 +140,7 @@ public class RollCase extends ParallellAction {
 				}
 			}
 		}
+//        System.out.printf("Done with scorecard: %s\n", sc);
 		return null;
 	}
 

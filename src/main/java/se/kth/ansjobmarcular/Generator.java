@@ -20,7 +20,7 @@ public class Generator {
 	 */
 	private Map<ScoreCard, Double>[][] expectedScores, workingVals;
 	private ActionsStorage db = new MemoryActionsStorage();
-	private ExecutorService runner = Executors.newSingleThreadExecutor();
+	private ExecutorService runner = Executors.newFixedThreadPool(100);
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
@@ -214,7 +214,7 @@ public class Generator {
 					.toString());
 		}
 	}
-	
+
 	public void close() {
 		runner.shutdownNow();
 	}
