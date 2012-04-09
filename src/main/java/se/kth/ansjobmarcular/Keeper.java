@@ -127,9 +127,9 @@ public class Keeper {
 		byte c = count, i = 0, d = 1;
 		byte[] ldice = Arrays.copyOf(dice, dice.length);
 		while (c > 0) {
-			if (ldice[d] > 0) {
-				hand[i++] = (byte) (d+1);
-				ldice[d]--;
+			if (ldice[d-1] > 0) {
+				hand[i++] = (byte) (d);
+				ldice[d-1]--;
 				c--;
 			} else {
 				d++;
