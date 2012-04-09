@@ -132,8 +132,14 @@ public class RollCase extends ParallellAction {
 							bestMask = mask;
 							bestScore = K[kidx];
 						}
+                                                if (roll == 0)
+                                                    break;
 					}
 					expectedScores[roll][hand].put(sc, bestScore);
+                                        
+                                        if (roll == 0)
+                                            break;
+                                        
 					db.addRollingAction((byte) bestMask, sc, h, roll);
 					Utils.debug("R: %d\t %s\n%s : 0x%x => %.2f\n\n", roll, sc,
 							h, bestMask, bestScore);
