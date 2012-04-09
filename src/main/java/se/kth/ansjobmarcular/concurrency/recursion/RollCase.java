@@ -28,10 +28,10 @@ public class RollCase extends ParallellAction {
 
 		double[] K = new double[Keeper.MAX_INDEX];
 
-		for (int roll = 3; roll >= 0; roll--) {
+		for (byte roll = 3; roll >= 0; roll--) {
 
 			if (roll == 3) {
-				for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+				for (short hand = 1; hand <= Hand.MAX_INDEX; hand++) {
 					double max = 0;
 					byte bestCat = 0;
 					ScoreCard tmpSc;
@@ -110,10 +110,10 @@ public class RollCase extends ParallellAction {
 				/* Roll = 2,1,0 */
 
 				/* Calculate K */
-				for (int held = 4; held >= 0; held--) {
+				for (byte held = 4; held >= 0; held--) {
 					for (Keeper k : Keeper.getKeepers(held)) {
 						double sum = 0;
-						for (int d = 1; d <= 6; d++) {
+						for (byte d = 1; d <= 6; d++) {
 							sum += K[k.add(d).getIndex()];
 						}
 						sum /= 6.0;
@@ -122,11 +122,11 @@ public class RollCase extends ParallellAction {
 				}
 
 				/* Calculate optimal actions */
-				for (int hand = 1; hand < Hand.MAX_INDEX; hand++) {
+				for (short hand = 1; hand < Hand.MAX_INDEX; hand++) {
 					Hand h = Hand.getHand(hand);
 					double bestScore = 0;
-					int bestMask = 0;
-					for (int mask = 0; mask <= Hand.MAX_MASK; mask++) {
+					byte bestMask = 0;
+					for (byte mask = 0; mask <= Hand.MAX_MASK; mask++) {
 						int kidx = new Keeper(h, mask).getIndex();
 						if (K[kidx] > bestScore) {
 							bestMask = mask;

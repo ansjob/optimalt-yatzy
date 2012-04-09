@@ -20,7 +20,7 @@ public class Generator {
 	 */
 	private Map<ScoreCard, Double>[][] expectedScores, workingVals;
 	private ActionsStorage db = new MemoryActionsStorage();
-	private ExecutorService runner = Executors.newFixedThreadPool(32);
+	private ExecutorService runner = Executors.newSingleThreadExecutor();
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
@@ -30,9 +30,9 @@ public class Generator {
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j < 253; j++) {
 				workingVals[i][j] = Collections
-						.synchronizedMap(new HashMap<ScoreCard, Double>());
+						.synchronizedMap(new HashMap<ScoreCard, Double>(6435));
 				expectedScores[i][j] = Collections
-						.synchronizedMap(new HashMap<ScoreCard, Double>());
+						.synchronizedMap(new HashMap<ScoreCard, Double>(6435));
 			}
 		}
 	}
@@ -76,7 +76,7 @@ public class Generator {
 		/*
 		 * For every round in the game (backwards).
 		 */
-		for (int filled = 13; filled >= 0; filled--) {
+		for (byte filled = 13; filled >= 0; filled--) {
 
 			/*
 			 * Initialize workingVals.
@@ -100,7 +100,7 @@ public class Generator {
 				 */
 				sc = new ScoreCard();
 				boolean hasUpperFree = false;
-				for (int i = 0; i < way.length; i++) {
+				for (byte i = 0; i < way.length; i++) {
 					if (way[i]) {
 						sc.fillScore(Category.values()[i]);
 					} else if (i < 6) {
@@ -111,7 +111,7 @@ public class Generator {
 				/*
 				 * For every possible upperTotal score.
 				 */
-				for (int upperTotal = 0; upperTotal < 64; upperTotal++, sc
+				for (byte upperTotal = 0; upperTotal < 64; upperTotal++, sc
 						.addScore(1)) {
 					ScoreCard tmpsc = (ScoreCard) sc.clone();
 					tmpsc.addScore(upperTotal);
@@ -124,10 +124,16 @@ public class Generator {
 			 * anymore. Also, make the (now complete) workingVals the
 			 * expectedScores for the next round.
 			 */
+                        for (int i = 0; i < expectedScores.length; i++) {
+                            for (int j = 0; j < expectedScores[i].length; j++) {
+                                expectedScores[i][j].clear();
+                                expectedScores[i][j] = null;
+                            }
+                        }
 			expectedScores = workingVals;
 
-			DateFormat df = DateFormat.getDateInstance();
-			System.out.printf("[%s] Done with recursion step %d\n ", df
+			DateFormat df = DateFormat.getTimeInstance();
+			System.out.printf("[%s] Done with recursion step %d\n", df
 					.format(new Date()), 14 - filled);
 		}
 
@@ -159,16 +165,16 @@ public class Generator {
 				}
 			}
 			Utils.debug("Copying values for %s\n", c);
-			for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
+			for (short hand = 1; hand <= Hand.MAX_INDEX; hand++) {
 				Hand h = Hand.getHand(hand);
-				for (int roll = 0; roll <= 3; roll++) {
+				for (byte roll = 0; roll <= 3; roll++) {
 					int action;
 					if (roll == 3) {
 						action = db.suggestMarking(h, sc);
 					} else {
 						action = db.suggestRoll(h, sc, roll);
 					}
-					for (int upperTotal = 1; upperTotal <= 63; upperTotal++, sc
+					for (byte upperTotal = 1; upperTotal <= 63; upperTotal++, sc
 							.addScore(1)) {
 						if (roll == 3)
 							db.addMarkingAction((byte) action, sc, h);

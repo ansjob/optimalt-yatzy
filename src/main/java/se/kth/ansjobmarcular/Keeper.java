@@ -15,10 +15,9 @@ public class Keeper {
 	
 	private static Map<Keeper, Integer> indexes = new HashMap<Keeper, Integer>();
 	private byte count = 0;
-	private byte[] dice = new byte[7];
+	private byte[] dice = new byte[6];
 
 	private Keeper() {
-
 	}
 
 	static {
@@ -78,14 +77,14 @@ public class Keeper {
 		
 		int i = 0;
 		int c = count;
-		int d = 1;
+		int d = 0;
 		while (c > 0) {
 			/* Find the first die needed. */
 			while (local[d] == 0)
 				d++;
 			/* d is now the die needed. */
 			
-			if (h[i] == d) {
+			if (h[i] == (d+1)) {
 				mask |= (1 << (4-i));
 				c--;
 				local[d]--;
@@ -102,8 +101,10 @@ public class Keeper {
 		Keeper other = new Keeper();
 		other.count = (byte) (this.count + 1);
 		other.dice = Arrays.copyOf(this.dice, this.dice.length);
-		other.dice[d]++;
-		return other;
+		other.dice[d-1]++;
+                short idx = (short) other.getIndex();
+                other = null;
+		return Keeper.keepers[idx];
 	}
 
 	public int getCount() {
@@ -127,15 +128,16 @@ public class Keeper {
 		byte[] ldice = Arrays.copyOf(dice, dice.length);
 		while (c > 0) {
 			if (ldice[d] > 0) {
-				hand[i++] = d;
+				hand[i++] = (byte) (d+1);
 				ldice[d]--;
 				c--;
 			} else {
 				d++;
 			}
 		}
-		return new Hand(hand[0],hand[1], hand[2], hand[3], hand[4]);
-		
+                Hand h = new Hand(hand[0],hand[1], hand[2], hand[3], hand[4]);
+                short idx = (short) h.getIndex();
+		return Hand.getHand(idx);
 	}
 
 	public Keeper getKeeper(int index) {
@@ -144,9 +146,9 @@ public class Keeper {
 
 	public Keeper(Hand hand, int mask) {
 		byte[] tmp = hand.getDice();
-		for (int i = 0; i < 5; i++) {
+		for (byte i = 0; i < 5; i++) {
 			if ((mask & (1 << (4 - i))) != 0) {
-				dice[tmp[i]]++;
+				dice[tmp[i]-1]++;
 				count++;
 			}
 		}
@@ -155,27 +157,28 @@ public class Keeper {
 	public Keeper(byte a, byte b, byte c, byte d, byte e) {
 		if (a != 0) {
 			count++;
-			dice[a]++;
+			dice[a-1]++;
 		}
 		if (b != 0) {
 			count++;
-			dice[b]++;
+			dice[b-1]++;
 		}
 		if (c != 0) {
 			count++;
-			dice[c]++;
+			dice[c-1]++;
 		}
 		if (d != 0) {
 			count++;
-			dice[d]++;
+			dice[d-1]++;
 		}
 		if (e != 0) {
 			count++;
-			dice[e]++;
+			dice[e-1]++;
 		}
 	}
 	
-	public String toString() {
-		return Arrays.toString(dice);
-	}
+    @Override
+    public String toString() {
+	return Arrays.toString(dice);
+    }
 }

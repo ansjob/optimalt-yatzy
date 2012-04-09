@@ -11,7 +11,7 @@ public class FileActionsStorage implements ActionsStorage {
 	private RandomAccessFile fp;
 
 	public FileActionsStorage() {
-		File file = new File("/tmp/actions");
+		File file = new File("E:/tmp/actions");
 		try {
 			fp = new RandomAccessFile(file, "rw");
 			fp.setLength(MAX_INDEX);

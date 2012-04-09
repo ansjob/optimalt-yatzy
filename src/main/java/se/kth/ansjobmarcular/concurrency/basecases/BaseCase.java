@@ -34,7 +34,7 @@ public class BaseCase extends ParallellAction {
 		for (Category c : Category.values()) {
 			if (c != cat)
 				sc.fillScore(c);
-		}
+		}	
 
 		/* For every roll during this round. */
 		for (int roll = 3; roll >= 0; roll--) {

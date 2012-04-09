@@ -6,8 +6,8 @@ import java.util.List;
 
 public class ScoreCard {
 	public static final int MAX_INDEX = 2097151;
-	private int upperTotal;
-	private int filled;
+	private short upperTotal;
+	private short filled;
 
 	public ScoreCard() {
 		upperTotal = 0;
@@ -53,7 +53,7 @@ public class ScoreCard {
 		return checked.toString();
 	}
 
-	public ScoreCard(int filled, int upperTotal) {
+	public ScoreCard(short filled, short upperTotal) {
 		this.filled = filled;
 		this.upperTotal = upperTotal;
 	}
@@ -253,26 +253,26 @@ public class ScoreCard {
 	 *            Category used for the hand (ONES for example).
 	 * @return Score.
 	 */
-	private int scoreNumbers(Hand hand, Category cat) {
-		int score;
+	private short scoreNumbers(Hand hand, Category cat) {
+		short score;
 		switch (cat) {
 		case ONES:
 			score = count(hand, 1);
 			break;
 		case TWOS:
-			score = count(hand, 2) * 2;
+			score = (short) (count(hand, 2) * 2);
 			break;
 		case THREES:
-			score = count(hand, 3) * 3;
+			score = (short) (count(hand, 3) * 3);
 			break;
 		case FOURS:
-			score = count(hand, 4) * 4;
+			score = (short) (count(hand, 4) * 4);
 			break;
 		case FIVES:
-			score = count(hand, 5) * 5;
+			score = (short) (count(hand, 5) * 5);
 			break;
 		case SIXES:
-			score = count(hand, 6) * 6;
+			score = (short) (count(hand, 6) * 6);
 			break;
 		default:
 			score = 0;
@@ -290,8 +290,8 @@ public class ScoreCard {
 	 *            Hand to be evaluated.
 	 * @return Score.
 	 */
-	private int scoreChance(Hand hand) {
-		int sum = 0;
+	private short scoreChance(Hand hand) {
+		short sum = 0;
 		for (int i : hand.getDice())
 			sum += i;
 		return sum;
@@ -304,10 +304,10 @@ public class ScoreCard {
 	 *            Hand to be evaluated.
 	 * @return Score.
 	 */
-	private int scoreYatzy(Hand hand) {
-		int count = 1;
-		int prev = 0;
-		for (int i : hand.getDice()) {
+	private short scoreYatzy(Hand hand) {
+		byte count = 1;
+		byte prev = 0;
+		for (byte i : hand.getDice()) {
 			if (prev == i)
 				count++;
 			prev = i;
@@ -326,12 +326,12 @@ public class ScoreCard {
 	 *            Hand to be evaluated.
 	 * @return Score.
 	 */
-	private int scoreHouse(Hand hand) {
-		int val = 0;
-		int prev = 0;
-		int count = 0;
+	private short scoreHouse(Hand hand) {
+		short val = 0;
+		byte prev = 0;
+		byte count = 0;
 
-		for (int i : hand.getDice()) {
+		for (byte i : hand.getDice()) {
 			if (i == prev || prev == 0) {
 				count++;
 			} else {
@@ -378,19 +378,19 @@ public class ScoreCard {
 	 *            etc).
 	 * @return Score.
 	 */
-	private int scoreKind(Hand hand, int no) {
-		int val = 0;
-		int count = 1;
-		int prev = 0;
+	private short scoreKind(Hand hand, int no) {
+		short val = 0;
+		byte count = 1;
+		byte prev = 0;
 
-		for (int i : hand.getDice()) {
+		for (byte i : hand.getDice()) {
 			if (i == prev)
 				count++;
 			else
 				count = 1;
 			prev = i;
 			if (count == no)
-				val = no * prev;
+				val = (short) (no * prev);
 		}
 
 		return val;
@@ -405,14 +405,14 @@ public class ScoreCard {
 	 *            Number of pairs to calculate for.
 	 * @return Score.
 	 */
-	private int scorePair(Hand hand, int no) {
-		int max = 0;
-		int prev = 0;
-		int used = 0;
-		int score = 0;
+	private short scorePair(Hand hand, int no) {
+		byte max = 0;
+		byte prev = 0;
+		byte used = 0;
+		short score = 0;
 		
 		for (; no > 0; no--) {
-			for (int i : hand.getDice()) {
+			for (byte i : hand.getDice()) {
 				if (prev == i && max < i && i != used) {
 					max = i;
 				}
@@ -434,8 +434,8 @@ public class ScoreCard {
 	 *            The (dice) number to be counted.
 	 * @return Occurrences of <i>number</i> in <i>hand</i>.
 	 */
-	private int count(Hand hand, int number) {
-		int val = 0;
+	private short count(Hand hand, int number) {
+		short val = 0;
 		for (int i : hand.getDice()) {
 			if (i == number)
 				val += 1;
