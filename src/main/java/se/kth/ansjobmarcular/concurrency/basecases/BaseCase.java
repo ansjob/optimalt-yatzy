@@ -18,7 +18,7 @@ public class BaseCase extends ParallellAction {
 	protected ExecutorService runner;
 	protected ActionsStorage db;
 
-	public BaseCase(Map<ScoreCard, Double>[][] expectedScores,
+	public BaseCase(Map<ScoreCard, Double> expectedScores,
 			Map<ScoreCard, Double>[][] workingVals, int upperTotal,
 			Category cat, ExecutorService runner, ActionsStorage db) {
 		super(expectedScores, workingVals);

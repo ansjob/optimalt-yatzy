@@ -12,21 +12,21 @@ public class Generator {
 	/*
 	 * The array containing the optimal strategy.
 	 */
-	private Map<ScoreCard, Double>[][] expectedScores, workingVals;
+	private Map<ScoreCard, Double>[][] workingVals;
+	private Map<ScoreCard, Double> expectedScores;
 	private ActionsStorage db = new MemoryActionsStorage();
 	private ExecutorService runner = Executors.newFixedThreadPool(4);
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
 		workingVals = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][Hand.MAX_INDEX + 1];
-		expectedScores = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][Hand.MAX_INDEX + 1];
+		expectedScores = new HashMap<ScoreCard, Double>();
 
 		for (int i = 0; i < 4; i++) {
 			for (int j = 0; j <= Hand.MAX_INDEX; j++) {
 				workingVals[i][j] = Collections
 						.synchronizedMap(new HashMap<ScoreCard, Double>(6435));
-				expectedScores[i][j] = Collections
-						.synchronizedMap(new HashMap<ScoreCard, Double>(6435));
+
 			}
 		}
 	}
@@ -63,7 +63,8 @@ public class Generator {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void generate() throws InterruptedException, CloneNotSupportedException {
+	public void generate() throws InterruptedException,
+			CloneNotSupportedException {
 		boolean[][] ways;
 		ScoreCard sc;
 
@@ -109,7 +110,8 @@ public class Generator {
 						.addScore(1)) {
 					ScoreCard tmpsc = sc.getCopy();
 					tmpsc.addScore(upperTotal);
-					tasks.add(new RollCase(expectedScores, workingVals, tmpsc, db));
+					tasks.add(new RollCase(expectedScores, workingVals, tmpsc,
+							db));
 				}
 			}
 			runner.invokeAll(tasks);
@@ -118,13 +120,12 @@ public class Generator {
 			 * anymore. Also, make the (now complete) workingVals the
 			 * expectedScores for the next round.
 			 */
-                        for (int i = 0; i < expectedScores.length; i++) {
-                            for (int j = 0; j < expectedScores[i].length; j++) {
-                                expectedScores[i][j].clear();
-                                expectedScores[i][j] = null;
-                            }
-                        }
-			expectedScores = workingVals;
+			for (int i = 0; i < workingVals.length; i++) {
+				for (int j = 0; j < workingVals[i].length; j++) {
+					workingVals[i][j].clear();
+					workingVals[i][j] = null;
+				}
+			}
 
 			DateFormat df = DateFormat.getTimeInstance();
 			System.out.printf("[%s] Done with recursion step %d\n", df
@@ -132,8 +133,7 @@ public class Generator {
 		}
 
 		/* Print the expected score for a Yatzy game. */
-		System.out.printf("Expected total score: %.2f\n", expectedScores[0][1]
-				.get(new ScoreCard()));
+		System.out.printf("Expected total score: %.2f\n", expectedScores.get(new ScoreCard()));
 
 		/* Close the storage. */
 		db.close();

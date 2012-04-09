@@ -15,7 +15,7 @@ public class RollCase extends ParallellAction {
 	protected ScoreCard sc;
 	protected ActionsStorage db;
 
-	public RollCase(Map<ScoreCard, Double>[][] expectedScores,
+	public RollCase(Map<ScoreCard, Double> expectedScores,
 			Map<ScoreCard, Double>[][] workingVals, ScoreCard sc,
 			ActionsStorage db) {
 		super(expectedScores, workingVals);
