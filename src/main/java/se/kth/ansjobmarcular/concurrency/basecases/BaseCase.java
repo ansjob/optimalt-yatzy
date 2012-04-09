@@ -76,7 +76,7 @@ public class BaseCase extends ParallellAction {
 				int bestMask = 0;
 				double bestScore = 0;
 				for (int mask = 0; mask <= Hand.MAX_MASK; mask++) {
-					Keeper k = new Keeper(h, mask);
+					Keeper k = Keeper.getKeeper(h, mask);
 					if (K[k.getIndex()] > bestScore) {
 						bestScore = K[k.getIndex()];
 						bestMask = mask;

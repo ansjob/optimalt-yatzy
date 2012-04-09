@@ -45,12 +45,7 @@ public class RollCase extends ParallellAction {
 						/*
 						 * Pretend to fill the category.
 						 */
-						try {
-							tmpSc = (ScoreCard) sc.clone();
-						} catch (CloneNotSupportedException e) {
-							e.printStackTrace();
-							return null;
-						}
+						tmpSc = sc.getCopy();
 
 						/*
 						 * Calculate the expected score if filling current
@@ -66,8 +61,8 @@ public class RollCase extends ParallellAction {
 								|| cat == Category.FOURS
 								|| cat == Category.FIVES
 								|| cat == Category.SIXES) {
-							tmpSc.fillScore(cat, tmpSc.value(
-									Hand.getHand(hand), cat));
+							tmpSc.fillScore(cat,
+									tmpSc.value(Hand.getHand(hand), cat));
 						} else {
 							tmpSc.fillScore(cat);
 						}
@@ -96,18 +91,25 @@ public class RollCase extends ParallellAction {
 					 * Save the optimal expected score for this state.
 					 */
 					workingVals[3][hand].put(sc, max);
-					K[new Keeper(Hand.getHand(hand), 0x1f).getIndex()] = max;
+					K[Keeper.getKeeper(Hand.getHand(hand), 0x1f).getIndex()] = max;
 
 					/*
 					 * Save the optimal category to put the hand in (the optimal
 					 * action).
 					 */
 					db.addMarkingAction(bestCat, sc, Hand.getHand(hand));
-					Utils.debug("R: 3 Scorecard: %s\n Hand: %s -> %s E = %.2f\n\n", sc, Hand.getHand(hand),
-							Category.fromInt(bestCat), max);
+					Utils.debug(
+							"R: 3 Scorecard: %s\n Hand: %s -> %s E = %.2f\n\n",
+							sc, Hand.getHand(hand), Category.fromInt(bestCat),
+							max);
 				}
 			} else {
 				/* Roll = 2,1,0 */
+
+				for (Keeper k : Keeper.getKeepers(5)) {
+					K[k.getIndex()] = workingVals[roll + 1][k.getHand()
+							.getIndex()].get(sc);
+				}
 
 				/* Calculate K */
 				for (byte held = 4; held >= 0; held--) {
@@ -127,26 +129,26 @@ public class RollCase extends ParallellAction {
 					double bestScore = 0;
 					byte bestMask = 0;
 					for (byte mask = 0; mask <= Hand.MAX_MASK; mask++) {
-						int kidx = new Keeper(h, mask).getIndex();
+						int kidx = Keeper.getKeeper(h, mask).getIndex();
 						if (K[kidx] > bestScore) {
 							bestMask = mask;
 							bestScore = K[kidx];
 						}
-                                                if (roll == 0)
-                                                    break;
+						if (roll == 0)
+							break;
 					}
-					expectedScores[roll][hand].put(sc, bestScore);
-                                        
-                                        if (roll == 0)
-                                            break;
-                                        
+					workingVals[roll][hand].put(sc, bestScore);
+
+					if (roll == 0)
+						break;
+
 					db.addRollingAction((byte) bestMask, sc, h, roll);
 					Utils.debug("R: %d\t %s\n%s : 0x%x => %.2f\n\n", roll, sc,
 							h, bestMask, bestScore);
 				}
 			}
 		}
-//        System.out.printf("Done with scorecard: %s\n", sc);
+		// System.out.printf("Done with scorecard: %s\n", sc);
 		return null;
 	}
 

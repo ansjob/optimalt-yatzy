@@ -10,9 +10,9 @@ import java.util.Map;
 public class Keeper {
 	public static final int MAX_INDEX = 462;
 	private static Keeper[] keepers = new Keeper[MAX_INDEX];
-	
+
 	private static List<Keeper>[] keepersM = (List<Keeper>[]) new List<?>[6];
-	
+
 	private static Map<Keeper, Integer> indexes = new HashMap<Keeper, Integer>();
 	private byte count = 0;
 	private byte[] dice = new byte[6];
@@ -21,7 +21,7 @@ public class Keeper {
 	}
 
 	static {
-		for (int j = 0; j <keepersM.length; j++) {
+		for (int j = 0; j < keepersM.length; j++) {
 			keepersM[j] = new ArrayList<Keeper>(Hand.MAX_INDEX);
 		}
 		int i = 0;
@@ -32,7 +32,8 @@ public class Keeper {
 						for (byte e = d; e <= 6; e++) {
 							Keeper k = new Keeper(a, b, c, d, e);
 							keepers[i] = k;
-							//Utils.debug("Generated keeper[%d]: %s\n", i, keepers[i]);
+							// Utils.debug("Generated keeper[%d]: %s\n", i,
+							// keepers[i]);
 							indexes.put(keepers[i], i);
 							keepersM[k.count].add(k);
 							i++;
@@ -42,7 +43,7 @@ public class Keeper {
 			}
 		}
 	}
-	
+
 	public static List<Keeper> getKeepers(int cardinality) {
 		return keepersM[cardinality];
 	}
@@ -74,7 +75,7 @@ public class Keeper {
 		byte mask = 0;
 		byte[] h = hand.getDice();
 		byte local[] = Arrays.copyOf(dice, dice.length);
-		
+
 		int i = 0;
 		int c = count;
 		int d = 0;
@@ -83,16 +84,17 @@ public class Keeper {
 			while (local[d] == 0)
 				d++;
 			/* d is now the die needed. */
-			
-			if (h[i] == (d+1)) {
-				mask |= (1 << (4-i));
+
+			if (h[i] == (d + 1)) {
+				mask |= (1 << (4 - i));
 				c--;
 				local[d]--;
 			}
 			i++;
-			
+
 			if (i == 5 && c > 0)
-				return -1;
+				throw new PanicException(
+						"Invalid query to getMask() on keeper.");
 		}
 		return mask;
 	}
@@ -101,9 +103,9 @@ public class Keeper {
 		Keeper other = new Keeper();
 		other.count = (byte) (this.count + 1);
 		other.dice = Arrays.copyOf(this.dice, this.dice.length);
-		other.dice[d-1]++;
-                short idx = (short) other.getIndex();
-                other = null;
+		other.dice[d - 1]++;
+		short idx = (short) other.getIndex();
+		other = null;
 		return Keeper.keepers[idx];
 	}
 
@@ -118,25 +120,26 @@ public class Keeper {
 	public int getIndex() {
 		return indexes.get(this);
 	}
-	
+
 	public Hand getHand() {
 		if (count != 5) {
-			throw new IllegalArgumentException("Tried to do getHand when count was " + count);
+			throw new IllegalArgumentException(
+					"Tried to do getHand when count was " + count);
 		}
 		byte[] hand = new byte[5];
 		byte c = count, i = 0, d = 1;
 		byte[] ldice = Arrays.copyOf(dice, dice.length);
 		while (c > 0) {
 			if (ldice[d] > 0) {
-				hand[i++] = (byte) (d+1);
+				hand[i++] = (byte) (d + 1);
 				ldice[d]--;
 				c--;
 			} else {
 				d++;
 			}
 		}
-                Hand h = new Hand(hand[0],hand[1], hand[2], hand[3], hand[4]);
-                short idx = (short) h.getIndex();
+		Hand h = new Hand(hand[0], hand[1], hand[2], hand[3], hand[4]);
+		short idx = (short) h.getIndex();
 		return Hand.getHand(idx);
 	}
 
@@ -144,41 +147,43 @@ public class Keeper {
 		return keepers[index];
 	}
 
-	public Keeper(Hand hand, int mask) {
+	public static Keeper getKeeper(Hand hand, int mask) {
+		Keeper k = new Keeper();
 		byte[] tmp = hand.getDice();
 		for (byte i = 0; i < 5; i++) {
 			if ((mask & (1 << (4 - i))) != 0) {
-				dice[tmp[i]-1]++;
-				count++;
+				k.dice[tmp[i] - 1]++;
+				k.count++;
 			}
 		}
+		return keepers[k.getIndex()];
 	}
 
 	public Keeper(byte a, byte b, byte c, byte d, byte e) {
 		if (a != 0) {
 			count++;
-			dice[a-1]++;
+			dice[a - 1]++;
 		}
 		if (b != 0) {
 			count++;
-			dice[b-1]++;
+			dice[b - 1]++;
 		}
 		if (c != 0) {
 			count++;
-			dice[c-1]++;
+			dice[c - 1]++;
 		}
 		if (d != 0) {
 			count++;
-			dice[d-1]++;
+			dice[d - 1]++;
 		}
 		if (e != 0) {
 			count++;
-			dice[e-1]++;
+			dice[e - 1]++;
 		}
 	}
-	
-    @Override
-    public String toString() {
-	return Arrays.toString(dice);
-    }
+
+	@Override
+	public String toString() {
+		return Arrays.toString(dice);
+	}
 }

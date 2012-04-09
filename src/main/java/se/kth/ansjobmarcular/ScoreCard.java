@@ -57,11 +57,10 @@ public class ScoreCard {
 		this.filled = filled;
 		this.upperTotal = upperTotal;
 	}
-
-	@Override
-	public Object clone() throws CloneNotSupportedException {
+        
+        public ScoreCard getCopy() {
 		return new ScoreCard(filled, upperTotal);
-	}
+        }
 
 	public boolean isFilled(Category cat) {
 		switch (cat) {

@@ -30,15 +30,15 @@ public class KeeperTest {
 
 	@Test
 	public void testConstructor() {
-		Keeper k = new Keeper(new Hand(1, 2, 3, 4, 5), 0x10);
+		Keeper k = Keeper.getKeeper(new Hand(1, 2, 3, 4, 5), 0x10);
 		assertEquals(1, k.getCount());
-		k = new Keeper(new Hand(1, 2, 3, 4, 5), 0x18);
+		k = Keeper.getKeeper(new Hand(1, 2, 3, 4, 5), 0x18);
 		assertEquals(2, k.getCount());
-		k = new Keeper(new Hand(1, 2, 3, 4, 5), 0x1C);
+		k = Keeper.getKeeper(new Hand(1, 2, 3, 4, 5), 0x1C);
 		assertEquals(3, k.getCount());
-		k = new Keeper(new Hand(1, 2, 3, 4, 5), 0x1E);
+		k = Keeper.getKeeper(new Hand(1, 2, 3, 4, 5), 0x1E);
 		assertEquals(4, k.getCount());
-		k = new Keeper(new Hand(1, 2, 3, 4, 5), 0x1F);
+		k = Keeper.getKeeper(new Hand(1, 2, 3, 4, 5), 0x1F);
 		assertEquals(5, k.getCount());
 	}
 
@@ -46,7 +46,7 @@ public class KeeperTest {
 	public void testShit() {
 		double[] K = new double[Keeper.MAX_INDEX];
 
-		K[new Keeper(new Hand(1, 2, 3, 4, 5), 0x1f).getIndex()] = 15;
+		K[Keeper.getKeeper(new Hand(1, 2, 3, 4, 5), 0x1f).getIndex()] = 15;
 
 		Hand h = new Hand(1, 2, 2, 4, 6);
 
@@ -58,7 +58,7 @@ public class KeeperTest {
 		double[] K = new double[Keeper.MAX_INDEX];
 		Hand target = new Hand(1, 2, 3, 4, 5);
 
-		K[new Keeper(target, 0x1f).getIndex()] = 15;
+		K[Keeper.getKeeper(target, 0x1f).getIndex()] = 15;
 
 		Hand h = new Hand(1, 6, 6, 6, 6);
 
@@ -100,14 +100,14 @@ public class KeeperTest {
 	@Test
 	public void testGetHand() {
 		Hand h = new Hand(1, 2, 3, 4, 5);
-		Keeper k = new Keeper(h, 0x1f);
+		Keeper k = Keeper.getKeeper(h, 0x1f);
 
 		byte[] expected = h.getDice();
 		byte[] actual = k.getHand().getDice();
 		assertArrayEquals(expected, actual);
 		for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
 			h = Hand.getHand(hand);
-			k = new Keeper(h, 0x1f);
+			k = Keeper.getKeeper(h, 0x1f);
 			expected = h.getDice();
 			actual = k.getHand().getDice();
 			assertArrayEquals(expected, actual);

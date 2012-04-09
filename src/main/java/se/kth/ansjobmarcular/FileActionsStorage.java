@@ -3,15 +3,22 @@ package se.kth.ansjobmarcular;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public class FileActionsStorage implements ActionsStorage {
 
 	private static final long MAX_INDEX = 3 * (Hand.MAX_INDEX + 1) * (ScoreCard.MAX_INDEX + 1);
 
 	private RandomAccessFile fp;
+	private static final int BUFSIZE = 1024*1024;
+	private int count = 0;
+	private Map<Long, Byte> buffer;
 
 	public FileActionsStorage() {
-		File file = new File("E:/tmp/actions");
+		buffer = new HashMap<Long, Byte>(BUFSIZE);
+		File file = new File("C:/tmp/actions");
 		try {
 			fp = new RandomAccessFile(file, "rw");
 			fp.setLength(MAX_INDEX);
@@ -64,15 +71,18 @@ public class FileActionsStorage implements ActionsStorage {
 
 	private synchronized void putByte(long index, int b) {
 		try {
-            fp.seek(index);
-            fp.writeByte(b);
+			count++;
+			buffer.put(index, (byte)b);
+			if (count % BUFSIZE == 0) {
+				flush();
+			}
         } catch (Exception e) {
             e.printStackTrace();
-            System.exit(-1);
         }
 	}
 
 	private synchronized int getByte(long index)  {
+		flush();
         try {
         fp.seek(index);
         return fp.read();
@@ -85,10 +95,26 @@ public class FileActionsStorage implements ActionsStorage {
 
 	public void close() {
 		try {
+			flush();
 			fp.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public synchronized void flush() {
+		Set<Map.Entry<Long, Byte>> tmp = buffer.entrySet();
+		for (Map.Entry<Long, Byte> entry : tmp) {
+			try {
+				fp.seek(entry.getKey());
+				fp.writeByte(entry.getValue());
+			} catch (IOException e) {
+				e.printStackTrace();
+	            System.exit(-1);
+			}
+		}
+		buffer.clear();
+		count = 0;
 	}
 
 }

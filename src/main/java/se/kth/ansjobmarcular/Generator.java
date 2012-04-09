@@ -1,15 +1,9 @@
 package se.kth.ansjobmarcular;
 
 import java.text.DateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
 import se.kth.ansjobmarcular.concurrency.basecases.BaseCase;
 import se.kth.ansjobmarcular.concurrency.recursion.RollCase;
 
@@ -20,15 +14,15 @@ public class Generator {
 	 */
 	private Map<ScoreCard, Double>[][] expectedScores, workingVals;
 	private ActionsStorage db = new MemoryActionsStorage();
-	private ExecutorService runner = Executors.newFixedThreadPool(100);
+	private ExecutorService runner = Executors.newFixedThreadPool(4);
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
-		workingVals = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][253];
-		expectedScores = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][253];
+		workingVals = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][Hand.MAX_INDEX + 1];
+		expectedScores = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][Hand.MAX_INDEX + 1];
 
 		for (int i = 0; i < 4; i++) {
-			for (int j = 0; j < 253; j++) {
+			for (int j = 0; j <= Hand.MAX_INDEX; j++) {
 				workingVals[i][j] = Collections
 						.synchronizedMap(new HashMap<ScoreCard, Double>(6435));
 				expectedScores[i][j] = Collections
@@ -113,7 +107,7 @@ public class Generator {
 				 */
 				for (byte upperTotal = 0; upperTotal < 64; upperTotal++, sc
 						.addScore(1)) {
-					ScoreCard tmpsc = (ScoreCard) sc.clone();
+					ScoreCard tmpsc = sc.getCopy();
 					tmpsc.addScore(upperTotal);
 					tasks.add(new RollCase(expectedScores, workingVals, tmpsc, db));
 				}
