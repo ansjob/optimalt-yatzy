@@ -11,7 +11,7 @@ import org.apache.commons.math.util.MathUtils;
  * @author ansjob
  */
 public class Utils {
-	private static final boolean DEBUG = true;
+	private static final boolean DEBUG = false;
 
 	public static void debug(String format, Object ... args) {
 		if (DEBUG)

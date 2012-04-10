@@ -1,9 +1,16 @@
 package se.kth.ansjobmarcular;
 
 import java.text.DateFormat;
-import java.util.*;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import se.kth.ansjobmarcular.concurrency.basecases.BaseCase;
 import se.kth.ansjobmarcular.concurrency.recursion.RollCase;
 
@@ -12,26 +19,26 @@ public class Generator {
 	/*
 	 * The array containing the optimal strategy.
 	 */
-	private Map<ScoreCard, Double>[][] workingVals;
-	private Map<ScoreCard, Double> expectedScores;
-	private ActionsStorage db = new MemoryActionsStorage();
+	private Map<Integer, Double>[][] workingVals;
+	private Map<Integer, Double> expectedScores;
+	private ActionsStorage db = new VoidActionsStorage();
 	private ExecutorService runner = Executors.newFixedThreadPool(16);
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
-		workingVals = (Map<ScoreCard, Double>[][]) new Map<?, ?>[3][Hand.MAX_INDEX + 1];
-		expectedScores = new HashMap<ScoreCard, Double>();
+		workingVals = (Map<Integer, Double>[][]) new Map<?, ?>[3][Hand.MAX_INDEX + 1];
+		expectedScores = new HashMap<Integer, Double>();
 
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j <= Hand.MAX_INDEX; j++) {
 				workingVals[i][j] = Collections
-						.synchronizedMap(new HashMap<ScoreCard, Double>(6435));
+						.synchronizedMap(new HashMap<Integer, Double>(6435));
 
 			}
 		}
 	}
 
-	public void generateBaseCases() throws InterruptedException {
+	public void generateBaseCases() throws Exception {
 
 		/*
 		 * For every last (unfilled) category.
@@ -58,13 +65,15 @@ public class Generator {
 			tasks.add(new BaseCase(expectedScores, workingVals, 0, cat, runner,
 					db));
 		}
-		runner.invokeAll(tasks);
+//		runner.invokeAll(tasks);
+		for (BaseCase x : tasks) {
+			x.call();
+		}
 		copyResults();
 	}
 
 	@SuppressWarnings("unchecked")
-	public void generate() throws InterruptedException,
-			CloneNotSupportedException {
+	public void generate() throws Exception {
 		boolean[][] ways;
 		ScoreCard sc;
 
@@ -72,15 +81,14 @@ public class Generator {
 		 * For every round in the game (backwards).
 		 */
 		for (byte filled = 13; filled >= 0; filled--) {
-
 			/*
 			 * Initialize workingVals.
 			 */
-			workingVals = (Map<ScoreCard, Double>[][]) new Map<?, ?>[4][Hand.MAX_INDEX + 1];
-			for (int i = 0; i < 4; i++) {
+			workingVals = (Map<Integer, Double>[][]) new Map<?, ?>[3][Hand.MAX_INDEX + 1];
+			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j <= Hand.MAX_INDEX; j++) {
 					workingVals[i][j] = Collections
-							.synchronizedMap(new HashMap<ScoreCard, Double>());
+							.synchronizedMap(new HashMap<Integer, Double>());
 				}
 			}
 
@@ -94,13 +102,8 @@ public class Generator {
 				 * Fill out the scorecard in this new way
 				 */
 				sc = new ScoreCard();
-				boolean hasUpperFree = false;
 				for (byte i = 0; i < way.length; i++) {
-					if (way[i]) {
-						sc.fillScore(Category.values()[i]);
-					} else if (i < 6) {
-						hasUpperFree = true;
-					}
+					sc.fillScore(Category.values()[i]);
 				}
 
 				/*
@@ -114,17 +117,15 @@ public class Generator {
 							db));
 				}
 			}
-			runner.invokeAll(tasks);
+//			runner.invokeAll(tasks);
+			for (Callable<Void> x : tasks) {
+				x.call();
+			}
 			/*
 			 * Forget the last round's expected scores, we don't need them
-			 * anymore. Also, make the (now complete) workingVals the
-			 * expectedScores for the next round.
+			 * anymore.
 			 */
-			for (int i = 0; i < workingVals.length; i++) {
-				for (int j = 0; j < workingVals[i].length; j++) {
-					workingVals[i][j] = null;
-				}
-			}
+			workingVals = null;
 
 			DateFormat df = DateFormat.getTimeInstance();
 			System.out.printf("[%s] Done with recursion step %d\n", df

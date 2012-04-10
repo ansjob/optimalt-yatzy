@@ -20,7 +20,7 @@ public class MemoryActionsStorage implements ActionsStorage {
 
 	@Override
 	public byte suggestRoll(Hand currentHand, ScoreCard currentScore, int roll) {
-		return storage[roll][currentHand.getIndex()][currentScore.getIndex()];
+		return storage[roll-1][currentHand.getIndex()][currentScore.getIndex()];
 	}
 
 	@Override
@@ -36,7 +36,7 @@ public class MemoryActionsStorage implements ActionsStorage {
 	@Override
 	public void addRollingAction(byte action, ScoreCard currentScore,
 			Hand hand, int roll) {
-		storage[roll][hand.getIndex()][currentScore.getIndex()] = (byte) action;
+		storage[roll-1][hand.getIndex()][currentScore.getIndex()] = (byte) action;
 	}
 
 	@Override

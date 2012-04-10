@@ -89,8 +89,7 @@ public class Keeper {
 			i++;
 
 			if (i == 5 && c > 0)
-				throw new PanicException(
-						"Invalid query to getMask() on keeper.");
+				return -1;
 		}
 		return mask;
 	}

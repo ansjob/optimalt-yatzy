@@ -9,8 +9,8 @@ public class RollCase extends ParallellAction {
     protected ScoreCard sc;
     protected ActionsStorage db;
 
-    public RollCase(Map<ScoreCard, Double> expectedScores,
-            Map<ScoreCard, Double>[][] workingVals, ScoreCard sc,
+    public RollCase(Map<Integer, Double> expectedScores,
+            Map<Integer, Double>[][] workingVals, ScoreCard sc,
             ActionsStorage db) {
         super(expectedScores, workingVals);
         this.sc = sc;
@@ -23,9 +23,6 @@ public class RollCase extends ParallellAction {
         double[] K = new double[Keeper.MAX_INDEX];
 
         for (byte roll = 3; roll >= 0; roll--) {
-            if (roll == 0) {
-                Utils.debug("Found roll == 0 in rollCase\n");
-            }
 
             if (roll == 3) {
                 for (short hand = 1; hand <= Hand.MAX_INDEX; hand++) {
@@ -69,11 +66,11 @@ public class RollCase extends ParallellAction {
                         /*
                          * Check that this was set (assume 0 otherwise)
                          */
-                        if (expectedScores.containsKey(tmpSc)) {
+                        if (expectedScores.containsKey(tmpSc.hashCode())) {
                             /*
                              * Add the expected score of the next state.
                              */
-                            score += expectedScores.get(tmpSc);
+                            score += expectedScores.get(tmpSc.hashCode());
                         }
 
                         /*
@@ -89,7 +86,7 @@ public class RollCase extends ParallellAction {
                     /*
                      * Save the optimal expected score for this state.
                      */
-                    workingVals[2][hand].put(sc, max);
+                    workingVals[2][hand].put(sc.hashCode(), max);
                     K[Keeper.getKeeper(Hand.getHand(hand), 0x1f).getIndex()] = max;
 
                     /*
@@ -109,7 +106,8 @@ public class RollCase extends ParallellAction {
              */
 
             for (Keeper k : Keeper.getKeepers(5)) {
-                K[k.getIndex()] = workingVals[roll][k.getHand().getIndex()].get(sc);
+            	Map<Integer, Double> map = workingVals[roll][k.getHand().getIndex()];
+            	K[k.getIndex()] = map.containsKey(sc.hashCode()) ? map.get(sc.hashCode()) : 0;
             }
 
             /*
@@ -129,7 +127,7 @@ public class RollCase extends ParallellAction {
             /*
              * Calculate optimal actions
              */
-            for (short hand = 1; hand < Hand.MAX_INDEX; hand++) {
+            for (short hand = 1; hand <= Hand.MAX_INDEX; hand++) {
                 Hand h = Hand.getHand(hand);
                 double bestScore = 0;
                 byte bestMask = 0;
@@ -140,12 +138,12 @@ public class RollCase extends ParallellAction {
                         bestScore = K[kidx];
                     }
                     if (roll == 0) {
-                        expectedScores.put(sc, bestScore);
+                        expectedScores.put(sc.hashCode(), bestScore);
                         Utils.debug("Exp(%s) => %.2f\n", sc, bestScore);
                         return null;
                     }
                 }
-                workingVals[roll - 1][hand].put(sc, bestScore);
+                workingVals[roll - 1][hand].put(sc.hashCode(), bestScore);
 
                 db.addRollingAction((byte) bestMask, sc, h, roll);
                 Utils.debug("R: %d\t %s\n%s : 0x%x => %.2f\n\n", roll, sc,

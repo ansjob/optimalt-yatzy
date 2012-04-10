@@ -18,8 +18,8 @@ public class BaseCase extends ParallellAction {
     protected ExecutorService runner;
     protected ActionsStorage db;
 
-    public BaseCase(Map<ScoreCard, Double> expectedScores,
-            Map<ScoreCard, Double>[][] workingVals, int upperTotal,
+    public BaseCase(Map<Integer, Double> expectedScores,
+            Map<Integer, Double>[][] workingVals, int upperTotal,
             Category cat, ExecutorService runner, ActionsStorage db) {
         super(expectedScores, workingVals);
         this.upperTotal = upperTotal;
@@ -50,7 +50,7 @@ public class BaseCase extends ParallellAction {
                  */
                 for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
                     double expected = sc.value(Hand.getHand(hand), cat);
-                    workingVals[2][hand].put(sc, expected);
+                    workingVals[2][hand].put(sc.hashCode(), expected);
                 }
                 continue;
             }
@@ -68,7 +68,8 @@ public class BaseCase extends ParallellAction {
              */
             double[] K = new double[Keeper.MAX_INDEX];
             for (Keeper k : Keeper.getKeepers(5)) {
-                K[k.getIndex()] = workingVals[2][k.getHand().getIndex()].get(sc);
+            	Map<Integer, Double> map = workingVals[roll][k.getHand().getIndex()];
+            	K[k.getIndex()] = map.containsKey(sc.hashCode()) ? map.get(sc.hashCode()) : 0;
             }
 
             /*
@@ -102,7 +103,7 @@ public class BaseCase extends ParallellAction {
                          * Let's save this as the expected score for this round
                          * of the game.
                          */
-                        expectedScores.put(sc, bestScore);
+                        expectedScores.put(sc.hashCode(), bestScore);
                         Utils.debug("Exp(%s)=> %.2f\n", sc , bestScore);
                         return null;
                     }
@@ -110,7 +111,7 @@ public class BaseCase extends ParallellAction {
 
                 Utils.debug("R: %d\t SC: %s\t%s\t %x -> %.2f\n", roll, sc,
                         h, bestMask, bestScore);
-                workingVals[roll-1][hand].put(sc, bestScore);
+                workingVals[roll-1][hand].put(sc.hashCode(), bestScore);
                 db.addRollingAction((byte) bestMask, sc, h, roll);
 
             }
