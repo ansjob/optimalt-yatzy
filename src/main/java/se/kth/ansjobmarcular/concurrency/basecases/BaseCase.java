@@ -1,5 +1,6 @@
 package se.kth.ansjobmarcular.concurrency.basecases;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -18,10 +19,9 @@ public class BaseCase extends ParallellAction {
     protected ExecutorService runner;
     protected ActionsStorage db;
 
-    public BaseCase(Map<Integer, Double> expectedScores,
-            Map<Integer, Double>[][] workingVals, int upperTotal,
+    public BaseCase(Map<Integer, Double> expectedScores, int upperTotal,
             Category cat, ExecutorService runner, ActionsStorage db) {
-        super(expectedScores, workingVals);
+        super(expectedScores);
         this.upperTotal = upperTotal;
         this.cat = cat;
         this.runner = runner;
@@ -29,6 +29,7 @@ public class BaseCase extends ParallellAction {
     }
 
     public Void call() throws Exception {
+    	BeforeCall();
         ScoreCard sc = new ScoreCard();
         sc.addScore(upperTotal);
         for (Category c : Category.values()) {
@@ -50,7 +51,7 @@ public class BaseCase extends ParallellAction {
                  */
                 for (int hand = 1; hand <= Hand.MAX_INDEX; hand++) {
                     double expected = sc.value(Hand.getHand(hand), cat);
-                    workingVals[2][hand].put(sc.hashCode(), expected);
+                    workingVals[1][hand].put(sc.hashCode(), expected);
                 }
                 continue;
             }
@@ -68,7 +69,7 @@ public class BaseCase extends ParallellAction {
              */
             double[] K = new double[Keeper.MAX_INDEX];
             for (Keeper k : Keeper.getKeepers(5)) {
-            	Map<Integer, Double> map = workingVals[roll][k.getHand().getIndex()];
+            	Map<Integer, Double> map = workingVals[1][k.getHand().getIndex()];
             	K[k.getIndex()] = map.containsKey(sc.hashCode()) ? map.get(sc.hashCode()) : 0;
             }
 
@@ -111,10 +112,11 @@ public class BaseCase extends ParallellAction {
 
                 Utils.debug("R: %d\t SC: %s\t%s\t %x -> %.2f\n", roll, sc,
                         h, bestMask, bestScore);
-                workingVals[roll-1][hand].put(sc.hashCode(), bestScore);
+                workingVals[0][hand].put(sc.hashCode(), bestScore);
                 db.addRollingAction((byte) bestMask, sc, h, roll);
 
             }
+           copyResultsToNextRound();
         }
         Utils.debug("Generated all base cases for %s with upperTotal %d\n",
                 cat, upperTotal);

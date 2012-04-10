@@ -1,7 +1,14 @@
 package se.kth.ansjobmarcular.concurrency.recursion;
 
 import java.util.Map;
-import se.kth.ansjobmarcular.*;
+
+import se.kth.ansjobmarcular.ActionsStorage;
+import se.kth.ansjobmarcular.Category;
+import se.kth.ansjobmarcular.Hand;
+import se.kth.ansjobmarcular.Keeper;
+import se.kth.ansjobmarcular.PanicException;
+import se.kth.ansjobmarcular.ScoreCard;
+import se.kth.ansjobmarcular.Utils;
 import se.kth.ansjobmarcular.concurrency.ParallellAction;
 
 public class RollCase extends ParallellAction {
@@ -9,16 +16,16 @@ public class RollCase extends ParallellAction {
     protected ScoreCard sc;
     protected ActionsStorage db;
 
-    public RollCase(Map<Integer, Double> expectedScores,
-            Map<Integer, Double>[][] workingVals, ScoreCard sc,
+    public RollCase(Map<Integer, Double> expectedScores, ScoreCard sc,
             ActionsStorage db) {
-        super(expectedScores, workingVals);
+        super(expectedScores);
         this.sc = sc;
         this.db = db;
     }
 
     @Override
     public Void call() throws Exception {
+    	BeforeCall();
 
         double[] K = new double[Keeper.MAX_INDEX];
 
@@ -86,7 +93,7 @@ public class RollCase extends ParallellAction {
                     /*
                      * Save the optimal expected score for this state.
                      */
-                    workingVals[2][hand].put(sc.hashCode(), max);
+                    workingVals[1][hand].put(sc.hashCode(), max);
                     K[Keeper.getKeeper(Hand.getHand(hand), 0x1f).getIndex()] = max;
 
                     /*
@@ -106,7 +113,7 @@ public class RollCase extends ParallellAction {
              */
 
             for (Keeper k : Keeper.getKeepers(5)) {
-            	Map<Integer, Double> map = workingVals[roll][k.getHand().getIndex()];
+            	Map<Integer, Double> map = workingVals[1][k.getHand().getIndex()];
             	K[k.getIndex()] = map.containsKey(sc.hashCode()) ? map.get(sc.hashCode()) : 0;
             }
 
@@ -143,12 +150,13 @@ public class RollCase extends ParallellAction {
                         return null;
                     }
                 }
-                workingVals[roll - 1][hand].put(sc.hashCode(), bestScore);
+                workingVals[0][hand].put(sc.hashCode(), bestScore);
 
                 db.addRollingAction((byte) bestMask, sc, h, roll);
                 Utils.debug("R: %d\t %s\n%s : 0x%x => %.2f\n\n", roll, sc,
                         h, bestMask, bestScore);
             }
+            copyResultsToNextRound();
         }
         /*
          * Should never reach here!
