@@ -88,9 +88,12 @@ public class KeeperTest {
 				}
 				sum /= 6.0;
 				K[k.getIndex()] = sum;
-				if (sum > maxK && k.getMask(h) != -1) {
-					maxK = sum;
-					bestMask = k.getMask(h);
+				try {
+					if (sum > maxK) {
+						bestMask = k.getMask(h);
+						maxK = sum;
+					}
+				} catch (PanicException e) {
 				}
 			}
 		}
