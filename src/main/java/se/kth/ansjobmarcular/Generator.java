@@ -133,7 +133,7 @@ public class Generator {
 		}
 
 		/* Print the expected score for a Yatzy game. */
-		System.out.printf("Expected total score: %.2f\n", expectedScores.get(new ScoreCard()));
+		System.out.printf("Expected total score: %.2f\n", expectedScores.get(new ScoreCard().hashCode()));
 
 		/* Close the storage. */
 		db.close();
