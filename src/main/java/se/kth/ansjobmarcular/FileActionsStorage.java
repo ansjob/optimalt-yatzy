@@ -3,22 +3,60 @@ package se.kth.ansjobmarcular;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 public class FileActionsStorage implements ActionsStorage {
 
 	private static final long MAX_INDEX = 3 * (Hand.MAX_INDEX + 1) * (ScoreCard.MAX_INDEX + 1);
 
 	private RandomAccessFile fp;
-	private static final int BUFSIZE = 1024*1024;
-	private int count = 0;
 	private Map<Long, Byte> buffer;
 
+    private ExecutorService ioRunner = Executors.newSingleThreadExecutor();
+
+    private class SaveTask implements Runnable {
+        protected int value;
+        private long index;
+
+        public SaveTask(int value, long index) {
+            this.value = value;
+            this.index = index;
+        }
+
+        @Override
+        public void run() {
+            try {
+                fp.seek(index);
+                fp.writeByte(value);
+            } catch (IOException ex) {
+                System.err.printf("Error writing to file!");
+                System.exit(-1);
+            }
+        }
+    }
+
+    private class FetchTask implements Callable<Integer> {
+        private long index;
+
+        public FetchTask(long index) {
+            this.index = index;
+        }
+
+        @Override
+        public Integer call() throws Exception {
+            fp.seek(index);
+            return fp.read();
+        }
+
+    }
+
 	public FileActionsStorage() {
-		buffer = new HashMap<Long, Byte>(BUFSIZE);
-		File file = new File("C:/tmp/actions");
+		File file = new File("/tmp/actions");
 		try {
 			fp = new RandomAccessFile(file, "rw");
 			fp.setLength(MAX_INDEX);
@@ -69,25 +107,18 @@ public class FileActionsStorage implements ActionsStorage {
 		return idx;
 	}
 
-	private synchronized void putByte(long index, int b) {
-		try {
-			count++;
-			buffer.put(index, (byte)b);
-			if (count % BUFSIZE == 0) {
-				flush();
-			}
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+
+	private void putByte(long index, int b) {
+		ioRunner.submit(new SaveTask(b, index));
 	}
 
-	private synchronized int getByte(long index)  {
-		flush();
+	private int getByte(long index)  {
         try {
-        fp.seek(index);
-        return fp.read();
-        } catch (Exception e) {
-            e.printStackTrace();
+            Callable<Integer> task = new FetchTask(index);
+            return ioRunner.submit(task).get();
+        } catch (Exception ex) {
+            System.err.printf("Error reading from file!");
             System.exit(-1);
             return -1;
         }
@@ -95,26 +126,12 @@ public class FileActionsStorage implements ActionsStorage {
 
 	public void close() {
 		try {
-			flush();
+            ioRunner.shutdown();
+            ioRunner.awaitTermination(10, TimeUnit.MINUTES);
 			fp.close();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public synchronized void flush() {
-		Set<Map.Entry<Long, Byte>> tmp = buffer.entrySet();
-		for (Map.Entry<Long, Byte> entry : tmp) {
-			try {
-				fp.seek(entry.getKey());
-				fp.writeByte(entry.getValue());
-			} catch (IOException e) {
-				e.printStackTrace();
-	            System.exit(-1);
-			}
-		}
-		buffer.clear();
-		count = 0;
 	}
 
 }
