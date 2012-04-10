@@ -4,18 +4,28 @@
  */
 package se.kth.ansjobmarcular;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import org.apache.commons.math.util.MathUtils;
 
 /**
- *
+ * 
  * @author ansjob
  */
 public class Utils {
 	private static final boolean DEBUG = false;
 
-	public static void debug(String format, Object ... args) {
+	public static void debug(String format, Object... args) {
 		if (DEBUG)
 			System.out.printf(format, args);
+	}
+
+	public static void debugTS(String format, Object... args) {
+		DateFormat df = DateFormat.getTimeInstance();
+		System.out.printf("[%s] ", df
+				.format(new Date()));
+		System.out.printf(format, args);
 	}
 
 	public static String maskToBinaryString(int mask) {
@@ -87,7 +97,10 @@ public class Utils {
 				res[i][j - 1] = true;
 				res[i][j] = false;
 			} else {
-				/* Find the next [false, true] sequence and count trues in between */
+				/*
+				 * Find the next [false, true] sequence and count trues in
+				 * between
+				 */
 				int count = 1;
 				int k;
 				for (k = 1; k < size - 1; k++) {

@@ -9,16 +9,17 @@ import java.util.Set;
 
 public class FileActionsStorage implements ActionsStorage {
 
-	private static final long MAX_INDEX = 3 * (Hand.MAX_INDEX + 1) * (ScoreCard.MAX_INDEX + 1);
+	private static final long MAX_INDEX = 3 * (Hand.MAX_INDEX + 1)
+			* (ScoreCard.MAX_INDEX + 1);
 
 	private RandomAccessFile fp;
-	private static final int BUFSIZE = 1024*1024;
+	private static final int BUFSIZE = 1024 * 1024;
 	private int count = 0;
 	private Map<Long, Byte> buffer;
 
 	public FileActionsStorage() {
 		buffer = new HashMap<Long, Byte>(BUFSIZE);
-		File file = new File("C:/tmp/actions");
+		File file = new File("E:/tmp/actions");
 		try {
 			fp = new RandomAccessFile(file, "rw");
 			fp.setLength(MAX_INDEX);
@@ -27,26 +28,24 @@ public class FileActionsStorage implements ActionsStorage {
 		}
 	}
 
-	public byte suggestRoll(Hand currentHand, ScoreCard currentScore,
-			int roll) {
+	public byte suggestRoll(Hand currentHand, ScoreCard currentScore, int roll) {
 		long index = getIndex(currentScore, currentHand, roll);
 		int b = getByte(index);
 		return (byte) b;
 	}
 
 	public byte suggestMarking(Hand currentHand, ScoreCard currentScore) {
-		long index = getIndex(currentScore, currentHand, 3);
+		long index = getIndex(currentScore, currentHand, 2);
 		return (byte) getByte(index);
 	}
 
-	public void addMarkingAction(byte action, ScoreCard currentScore,
-			Hand hand) {
-		long index = getIndex(currentScore, hand, 3);
+	public void addMarkingAction(byte action, ScoreCard currentScore, Hand hand) {
+		long index = getIndex(currentScore, hand, 2);
 		putByte(index, action);
 	}
 
 	public void addRollingAction(byte action, ScoreCard currentScore,
-			Hand hand, int roll){
+			Hand hand, int roll) {
 		long index = getIndex(currentScore, hand, roll);
 		putByte(index, action);
 	}
@@ -60,37 +59,38 @@ public class FileActionsStorage implements ActionsStorage {
 		throw new UnsupportedOperationException();
 	}
 
-
 	long cardSize = 1;
 	long handSize = cardSize * (ScoreCard.MAX_INDEX + 1);
 	long rollSize = handSize * (Hand.MAX_INDEX + 1);
+
 	private long getIndex(ScoreCard sc, Hand hand, int roll) {
-		long idx = (rollSize * roll) + (handSize * hand.getIndex()) + (cardSize * sc.getIndex());
+		long idx = (rollSize * roll) + (handSize * hand.getIndex())
+				+ (cardSize * sc.getIndex());
 		return idx;
 	}
 
 	private synchronized void putByte(long index, int b) {
 		try {
 			count++;
-			buffer.put(index, (byte)b);
+			buffer.put(index, (byte) b);
 			if (count % BUFSIZE == 0) {
 				flush();
 			}
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	private synchronized int getByte(long index)  {
+	private synchronized int getByte(long index) {
 		flush();
-        try {
-        fp.seek(index);
-        return fp.read();
-        } catch (Exception e) {
-            e.printStackTrace();
-            System.exit(-1);
-            return -1;
-        }
+		try {
+			fp.seek(index);
+			return fp.read();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+			return -1;
+		}
 	}
 
 	public void close() {
@@ -101,7 +101,7 @@ public class FileActionsStorage implements ActionsStorage {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public synchronized void flush() {
 		Set<Map.Entry<Long, Byte>> tmp = buffer.entrySet();
 		for (Map.Entry<Long, Byte> entry : tmp) {
@@ -110,7 +110,7 @@ public class FileActionsStorage implements ActionsStorage {
 				fp.writeByte(entry.getValue());
 			} catch (IOException e) {
 				e.printStackTrace();
-	            System.exit(-1);
+				System.exit(-1);
 			}
 		}
 		buffer.clear();
