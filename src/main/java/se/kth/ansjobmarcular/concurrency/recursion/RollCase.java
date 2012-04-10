@@ -149,7 +149,6 @@ public class RollCase extends ParallellAction {
                 Utils.debug("R: %d\t %s\n%s : 0x%x => %.2f\n\n", roll, sc,
                         h, bestMask, bestScore);
             }
-
         }
         /*
          * Should never reach here!

@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -22,7 +21,7 @@ public class Generator {
 	private Map<Integer, Double>[][] workingVals;
 	private Map<Integer, Double> expectedScores;
 	private ActionsStorage db = new VoidActionsStorage();
-	private ExecutorService runner = Executors.newFixedThreadPool(16);
+	private ExecutorService runner = Executors.newFixedThreadPool(2);
 
 	@SuppressWarnings("unchecked")
 	public Generator() {
@@ -65,10 +64,10 @@ public class Generator {
 			tasks.add(new BaseCase(expectedScores, workingVals, 0, cat, runner,
 					db));
 		}
-//		runner.invokeAll(tasks);
-		for (BaseCase x : tasks) {
-			x.call();
-		}
+		runner.invokeAll(tasks);
+//		for (BaseCase x : tasks) {
+//			x.call();
+//		}
 		copyResults();
 	}
 
@@ -103,24 +102,24 @@ public class Generator {
 				 */
 				sc = new ScoreCard();
 				for (byte i = 0; i < way.length; i++) {
-					sc.fillScore(Category.values()[i]);
+					if (way[i])
+						sc.fillScore(Category.values()[i]);
 				}
 
 				/*
 				 * For every possible upperTotal score.
 				 */
-				for (byte upperTotal = 0; upperTotal < 64; upperTotal++, sc
-						.addScore(1)) {
+				for (byte upperTotal = 0; upperTotal < 64; upperTotal++) {
 					ScoreCard tmpsc = sc.getCopy();
 					tmpsc.addScore(upperTotal);
 					tasks.add(new RollCase(expectedScores, workingVals, tmpsc,
 							db));
 				}
 			}
-//			runner.invokeAll(tasks);
-			for (Callable<Void> x : tasks) {
-				x.call();
-			}
+			runner.invokeAll(tasks);
+//			for (Callable<Void> x : tasks) {
+//				x.call();
+//			}
 			/*
 			 * Forget the last round's expected scores, we don't need them
 			 * anymore.
