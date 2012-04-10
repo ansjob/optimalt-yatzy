@@ -4,4 +4,5 @@ public class Bot {
 	protected ActionsStorage db = new FileActionsStorage();
 	
 	
+	
 }

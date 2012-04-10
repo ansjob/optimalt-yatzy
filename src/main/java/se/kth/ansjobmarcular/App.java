@@ -13,16 +13,16 @@ public class App {
 		Generator gen = new Generator();
 		
 		/* Generate the base cases. */
-		System.out.println("Generating base cases..");
+		Utils.debugTS("Generating base cases...\n");
 		time = System.currentTimeMillis();
 		gen.generateBaseCases();
-		System.out.printf("Generated base cases in %dms\n", System.currentTimeMillis() - time);
+		Utils.debugTS("Generated base cases in %dms\n", System.currentTimeMillis() - time);
 		
 		/* Generate other cases. */
-		System.out.println("Generating other cases..");
+		Utils.debugTS("Generating other cases...\n");
 		time = System.currentTimeMillis();
 		gen.generate();
-		System.out.printf("Generated other cases in %dms\n", System.currentTimeMillis() - time);
+		Utils.debugTS("Generated other cases in %dms\n", System.currentTimeMillis() - time);
 		gen.close();
 	}
 }

@@ -1,6 +1,5 @@
 package se.kth.ansjobmarcular.concurrency.basecases;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
