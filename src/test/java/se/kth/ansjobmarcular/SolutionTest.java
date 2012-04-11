@@ -97,7 +97,7 @@ public class SolutionTest {
     	} while (cat2 == cat1);
     	
     	/* Set upper total */
-    	sc.addScore(0);
+    	sc.addScore(42);
     	
     	/* Now we have 2 different cats */
     	for (Category x : Category.values) {

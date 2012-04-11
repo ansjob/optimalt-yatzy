@@ -1,6 +1,8 @@
 package se.kth.ansjobmarcular;
 
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Bot {
 
@@ -8,6 +10,8 @@ public class Bot {
      * The database interface
      */
     protected ActionsStorage db = new FileActionsStorage();
+    
+    protected static List<Integer> results = new LinkedList<Integer>();
     /**
      * The dice currently at hand
      */
@@ -21,13 +25,18 @@ public class Bot {
      */
     public static void main(String[] args) {
 
-        int numGames = 10;
+        int numGames = 1000;
 
         Bot bot = new Bot();
         for (int i = 0; i < numGames; i++) {
             bot.playGame();
         }
-
+        double avg = 0;
+        for (Integer res : results) {
+        	avg += res;
+        }
+        avg /= results.size();
+        System.out.printf("Played %d games, at average score %.2f\n", numGames, avg);
     }
 
     private void playGame() {
@@ -63,6 +72,7 @@ public class Bot {
                 }
             }
         }
+        results.add(totalScore);
         System.out.printf("Finished game with total score %d\n", totalScore);
     }
 
