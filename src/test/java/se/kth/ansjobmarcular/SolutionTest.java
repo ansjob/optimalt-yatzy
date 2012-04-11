@@ -22,28 +22,28 @@ public class SolutionTest {
 		roll = 1;
 		assertEquals(0x1f, db.suggestRoll(h, sc, roll));
 		assertEquals(Category.toInt(Category.YATZY), db.suggestMarking(h, sc));
-		
+
 		/* Test with one to keep. */
 		sc = new ScoreCard();
 		h = new Hand(5, 6, 6, 6, 6);
 		roll = 1;
 		assertEquals(0xf, db.suggestRoll(h, sc, roll));
 		assertEquals(Category.toInt(Category.SIXES), db.suggestMarking(h, sc));
-		
+
 		/* Test with two to keep. */
 		sc = new ScoreCard();
 		h = new Hand(3, 4, 6, 6, 6);
 		roll = 1;
 		assertEquals(0x7, db.suggestRoll(h, sc, roll));
 		assertEquals(Category.toInt(Category.THREEOFAKIND), db.suggestMarking(h, sc)); // Stämmer detta?
-		
+
 		/* Test with small straight. */
 		sc = new ScoreCard();
 		h = new Hand(1, 2, 3, 4, 5);
 		roll = 1;
 		assertEquals(0x1f, db.suggestRoll(h, sc, roll));
 		assertEquals(Category.toInt(Category.SMALLSTRAIGHT), db.suggestMarking(h, sc));
-		
+
 		/* Test with large straight. */
 		sc = new ScoreCard();
 		h = new Hand(2, 3, 4, 5, 6);
@@ -51,7 +51,17 @@ public class SolutionTest {
 		assertEquals(0x1f, db.suggestRoll(h, sc, roll));
 		assertEquals(Category.toInt(Category.LARGESTRAIGHT), db.suggestMarking(h, sc));
 	}
-	
+
+    @Test
+    public void SixesTest() {
+        ScoreCard sc = new ScoreCard();
+        sc.fillScore(Category.YATZY);
+        Hand h = new Hand(6,6,6,6,6);
+        roll = 1;
+        assertEquals(0x1f, db.suggestRoll(h, sc, roll));
+        assertEquals(Category.toInt(Category.SIXES), db.suggestMarking(h, sc));
+    }
+
 
 
 	@Test
@@ -63,7 +73,7 @@ public class SolutionTest {
 		roll = 1;
 		assertEquals(0x1f, db.suggestRoll(h, sc, roll));
 		assertEquals(Category.toInt(Category.SIXES), db.suggestMarking(h, sc));
-		
+
 		/* Test with one to keep. */
 		sc = new ScoreCard();
 		sc.fillScore(Category.YATZY);

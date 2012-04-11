@@ -17,8 +17,8 @@ public class Generator {
      * The array containing the optimal strategy.
      */
     private Map<Integer, Double> expectedScores;
-    private static final int NUM_THREADS = 4;
-    private ActionsStorage db = new VoidActionsStorage();
+    private static final int NUM_THREADS = 8;
+    private ActionsStorage db = new MemoryActionsStorage();
     private ExecutorService runner = Executors.newFixedThreadPool(NUM_THREADS);
     private final boolean USE_THREADS = true;
 
@@ -184,6 +184,7 @@ public class Generator {
     }
 
     public void close() {
+        db.close();
         runner.shutdownNow();
     }
 
