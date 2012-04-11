@@ -15,15 +15,13 @@ public class BaseCase extends ParallellAction {
 
     protected int upperTotal;
     protected Category cat;
-    protected ExecutorService runner;
     protected ActionsStorage db;
 
     public BaseCase(Map<Integer, Double> expectedScores, int upperTotal,
-            Category cat, ExecutorService runner, ActionsStorage db) {
+            Category cat,  ActionsStorage db) {
         super(expectedScores);
         this.upperTotal = upperTotal;
         this.cat = cat;
-        this.runner = runner;
         this.db = db;
     }
 

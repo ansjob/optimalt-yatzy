@@ -38,7 +38,7 @@ public class FileActionsStorage implements ActionsStorage {
 	}
 
 	public byte suggestRoll(Hand currentHand, ScoreCard currentScore, int roll) {
-		long index = getIndex(currentScore, currentHand, roll);
+		long index = getIndex(currentScore, currentHand, roll-1);
 		int b = getByte(index);
 		return (byte) b;
 	}
@@ -55,7 +55,7 @@ public class FileActionsStorage implements ActionsStorage {
 
 	public void addRollingAction(byte action, ScoreCard currentScore,
 			Hand hand, int roll) {
-		long index = getIndex(currentScore, hand, roll);
+		long index = getIndex(currentScore, hand, roll-1);
 		putByte(index, action);
 	}
 

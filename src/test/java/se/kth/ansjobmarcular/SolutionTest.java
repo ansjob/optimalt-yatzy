@@ -1,6 +1,9 @@
 package se.kth.ansjobmarcular;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Random;
 
 import org.junit.Test;
 
@@ -75,8 +78,45 @@ public class SolutionTest {
         assertEquals(0x1f, db.suggestRoll(h, sc, roll));
         assertEquals(Category.toInt(Category.SIXES), db.suggestMarking(h, sc));
     }
-
-
+    
+    
+    @Test
+    public void LastTwoLoop() {
+    	for (int i = 0; i < 1000; i++) {
+    		LastTwo();
+    	}
+    }
+    
+    public void LastTwo() {
+    	sc = new ScoreCard();
+    	Category cat1, cat2;
+    	Random r = new Random();
+    	cat1 = Category.values[r.nextInt(15)];
+    	do {
+        	cat2 = Category.values[r.nextInt(15)];
+    	} while (cat2 == cat1);
+    	
+    	/* Set upper total */
+    	sc.addScore(0);
+    	
+    	/* Now we have 2 different cats */
+    	for (Category x : Category.values) {
+    		if (x != cat1 && x != cat2) {
+    			sc.fillScore(x);
+    		}
+    	}
+    	/* Scorecard generated! */
+    	int[] dice = new int[5];
+    	for (int i = 0; i < dice.length; i++) {
+    		dice[i] = 1 + r.nextInt(6);
+    	}
+    	
+    	Hand h = new Hand(dice[0], dice[1], dice[2], dice[3], dice[4]);
+    	
+    	int suggestion = db.suggestMarking(h, sc);
+    	Category su = Category.values[suggestion];
+    	assertTrue(su == cat1 || su == cat2);
+    }
 
 	@Test
 	public void testSecondRound() {

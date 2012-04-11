@@ -24,5 +24,6 @@ public class App {
 		gen.generate();
 		Utils.debugTS("Generated other cases in %dms\n", System.currentTimeMillis() - time);
 		gen.close();
+
 	}
 }

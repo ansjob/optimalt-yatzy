@@ -19,8 +19,7 @@ public class Generator {
     private Map<Integer, Double> expectedScores;
     private static final int NUM_THREADS = 8;
     private ActionsStorage db = new MemoryActionsStorage();
-    private ExecutorService runner = Executors.newFixedThreadPool(NUM_THREADS);
-    private final boolean USE_THREADS = false;
+    private final boolean USE_THREADS = true;
 
     public Generator() {
         expectedScores = new ConcurrentHashMap<Integer, Double>();
@@ -31,20 +30,13 @@ public class Generator {
         /*
          * For every last (unfilled) category.
          */
-        ExecutorService run = Executors.newFixedThreadPool(1);
+        ExecutorService run = Executors.newFixedThreadPool(NUM_THREADS);
         for (Category cat : Category.values()) {
             /*
              * The upper total only matters for the first six categories
              */
             for (int upperTotal = 0; upperTotal <= 63; upperTotal++) {
-                /*
-                 * For the other ones, we can generate it as if it was 0, and
-                 * copy the results to the other situations. All we need to
-                 * remember is that if we reach the final round, and have
-                 * something other than 1-6 left, we just pretend upperTotal is
-                 * 0
-                 */
-                BaseCase task = new BaseCase(expectedScores, 0, cat, runner, db);
+                BaseCase task = new BaseCase(expectedScores, upperTotal, cat, db);
                 if (USE_THREADS) {
                     run.submit(task);
                 } else {
@@ -88,8 +80,7 @@ public class Generator {
                 for (byte upperTotal = 0; upperTotal < 64; upperTotal++) {
                     ScoreCard tmpsc = sc.getCopy();
                     tmpsc.addScore(upperTotal);
-                    RollCase task = new RollCase(expectedScores, tmpsc,
-                            db);
+                    RollCase task = new RollCase(expectedScores, tmpsc, db);
                     if (USE_THREADS) {
                         run.submit(task);
                     } else {
@@ -185,7 +176,6 @@ public class Generator {
 
     public void close() {
         db.close();
-        runner.shutdownNow();
     }
 
 }
