@@ -27,7 +27,7 @@ public class FileActionsStorage implements ActionsStorage {
 
 
 	public FileActionsStorage() {
-		File file = new File("E:/tmp/actions");
+		File file = new File("/tmp/actions");
 		buffer = new HashMap<Long, Byte>(BUFSIZE);
 		try {
 			fp = new RandomAccessFile(file, "rw");

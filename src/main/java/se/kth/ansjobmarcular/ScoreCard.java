@@ -13,7 +13,7 @@ public class ScoreCard {
 		upperTotal = 0;
 		filled = 0;
 	}
-	
+
 	public int lowestEffectiveUpper() {
 		int res;
 		int max = 0;
@@ -40,7 +40,7 @@ public class ScoreCard {
 
 		return checked.toString();
 	}
-	
+
 	public String getUnFilled() {
 		List<Category> checked = new LinkedList<Category>();
 
@@ -57,7 +57,7 @@ public class ScoreCard {
 		this.filled = filled;
 		this.upperTotal = upperTotal;
 	}
-        
+
         public ScoreCard getCopy() {
 		return new ScoreCard(filled, upperTotal);
         }
@@ -194,7 +194,7 @@ public class ScoreCard {
 	/**
 	 * Calculate the score value for a given hand in the given score type,
 	 * taking into consideration how the scorecard has been filled in so far.
-	 * 
+	 *
 	 * @param hand
 	 *            The hand to be evaluated.
 	 * @param sp
@@ -245,7 +245,7 @@ public class ScoreCard {
 
 	/**
 	 * Calculate the numbers (specified) score for a hand.
-	 * 
+	 *
 	 * @param hand
 	 *            Hand to be evaluated.
 	 * @param cat
@@ -284,7 +284,7 @@ public class ScoreCard {
 
 	/**
 	 * Calculate the chance score for a hand.
-	 * 
+	 *
 	 * @param hand
 	 *            Hand to be evaluated.
 	 * @return Score.
@@ -298,7 +298,7 @@ public class ScoreCard {
 
 	/**
 	 * Calculate the yatzy score for a hand.
-	 * 
+	 *
 	 * @param hand
 	 *            Hand to be evaluated.
 	 * @return Score.
@@ -320,7 +320,7 @@ public class ScoreCard {
 
 	/**
 	 * Calculate the house score of a hand.
-	 * 
+	 *
 	 * @param hand
 	 *            Hand to be evaluated.
 	 * @return Score.
@@ -350,7 +350,7 @@ public class ScoreCard {
 
 	/**
 	 * Calculate the straight score of a hand.
-	 * 
+	 *
 	 * @param hand
 	 *            Hand to be evaluated.
 	 * @param type
@@ -369,7 +369,7 @@ public class ScoreCard {
 
 	/**
 	 * Calculate the 3-, 4-of-a-kind score of a hand.
-	 * 
+	 *
 	 * @param hand
 	 *            Hand to be evaluated.
 	 * @param no
@@ -397,7 +397,7 @@ public class ScoreCard {
 
 	/**
 	 * Calculates the (two-)pair score of a hand.
-	 * 
+	 *
 	 * @param hand
 	 *            Hand to be evaluated.
 	 * @param no
@@ -409,7 +409,7 @@ public class ScoreCard {
 		byte prev = 0;
 		byte used = 0;
 		short score = 0;
-		
+
 		for (; no > 0; no--) {
 			for (byte i : hand.getDice()) {
 				if (prev == i && max < i && i != used) {
@@ -426,14 +426,14 @@ public class ScoreCard {
 
 	/**
 	 * Count the occurrences of given number in given hand.
-	 * 
+	 *
 	 * @param hand
 	 *            The hand in which the dice will be counted.
 	 * @param number
 	 *            The (dice) number to be counted.
 	 * @return Occurrences of <i>number</i> in <i>hand</i>.
 	 */
-	private short count(Hand hand, int number) {
+	public static short count(Hand hand, int number) {
 		short val = 0;
 		for (int i : hand.getDice()) {
 			if (i == number)

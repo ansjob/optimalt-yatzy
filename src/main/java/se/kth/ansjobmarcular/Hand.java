@@ -182,6 +182,10 @@ public class Hand {
 		return Arrays.toString(dice);
 	}
 
+    static {
+        generate();
+    }
+
 	private static void generate() {
 		int a, b, c, d, e, i;
 		i = 0;
