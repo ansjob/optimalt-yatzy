@@ -23,6 +23,20 @@ public class SolutionTest {
 		assertEquals(0x1f, db.suggestRoll(h, sc, roll));
 		assertEquals(Category.toInt(Category.YATZY), db.suggestMarking(h, sc));
 
+		/* Trivial (Yatzy) keeper mid game. */
+		sc = new ScoreCard();
+		sc.fillScore(Category.ONES);
+		sc.fillScore(Category.SMALLSTRAIGHT);
+		sc.fillScore(Category.HOUSE);
+		sc.fillScore(Category.TWOS);
+		sc.fillScore(Category.FOURS);
+		sc.fillScore(Category.TWOPAIR);
+		sc.fillScore(Category.PAIR);
+		h = new Hand(6, 6, 6, 6, 6);
+		roll = 1;
+		assertEquals(0x1f, db.suggestRoll(h, sc, roll));
+		assertEquals(Category.toInt(Category.YATZY), db.suggestMarking(h, sc));
+
 		/* Test with one to keep. */
 		sc = new ScoreCard();
 		h = new Hand(5, 6, 6, 6, 6);

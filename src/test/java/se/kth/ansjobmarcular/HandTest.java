@@ -71,10 +71,5 @@ public class HandTest {
 				"]";
 		String actual = Arrays.toString(hand.getPossibleOutcomes(mask));
 		assertEquals(expected, actual);
-		
-		Hand[] hands = (hand.getPossibleOutcomes(0x18));
-		for (Hand h : hands) {
-			System.out.println(h);
-		}
 	}
 }

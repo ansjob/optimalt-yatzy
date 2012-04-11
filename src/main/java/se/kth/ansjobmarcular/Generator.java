@@ -20,7 +20,7 @@ public class Generator {
     private static final int NUM_THREADS = 8;
     private ActionsStorage db = new MemoryActionsStorage();
     private ExecutorService runner = Executors.newFixedThreadPool(NUM_THREADS);
-    private final boolean USE_THREADS = true;
+    private final boolean USE_THREADS = false;
 
     public Generator() {
         expectedScores = new ConcurrentHashMap<Integer, Double>();
