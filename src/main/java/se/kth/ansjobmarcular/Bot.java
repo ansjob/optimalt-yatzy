@@ -3,6 +3,7 @@ package se.kth.ansjobmarcular;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 public class Bot {
 
@@ -25,7 +26,7 @@ public class Bot {
      */
     public static void main(String[] args) {
 
-        int numGames = 1000;
+        int numGames = 20000;
 
         Bot bot = new Bot();
         for (int i = 0; i < numGames; i++) {
@@ -73,13 +74,14 @@ public class Bot {
             }
         }
         results.add(totalScore);
-        System.out.printf("Finished game with total score %d\n", totalScore);
+        System.out.printf("%d\n", totalScore);
     }
 
+    static Random r = new Random();
     private static void randomize(byte[] dice, int mask) {
         for (int i = 0; i < dice.length; i++) {
             if (((1 << (dice.length - (i + 1))) & mask) == 0) {
-                dice[i] = (byte) (1 + (Math.random() * 6));
+                dice[i] = (byte) (1 + r.nextInt(6));
             }
         }
         Arrays.sort(dice);

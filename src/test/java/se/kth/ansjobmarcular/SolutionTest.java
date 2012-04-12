@@ -3,6 +3,8 @@ package se.kth.ansjobmarcular;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 import org.junit.Test;
@@ -135,5 +137,74 @@ public class SolutionTest {
 		roll = 1;
 		assertEquals(0xf, db.suggestRoll(h, sc, roll));
 		assertEquals(Category.toInt(Category.SIXES), db.suggestMarking(h, sc));
+	}
+	
+	@Test
+	public void testObviousPlaythrough() {
+		
+		List<Round> rounds = Arrays.asList(
+				new Round(0x0f,0x0f,new Hand(5,6,6,6,6), new Hand(5,6,6,6,6), new Hand(6,6,6,6,6), Category.YATZY),
+				new Round(0x0f,0x0f,new Hand(5,6,6,6,6), new Hand(5,6,6,6,6), new Hand(6,6,6,6,6), Category.SIXES),
+				new Round(0x1f,0x1f,new Hand(5,5,6,6,6), new Hand(5,5,6,6,6), new Hand(5,5,6,6,6), Category.HOUSE),
+				new Round(0x1f,0x1f,new Hand(2,3,4,5,6), new Hand(2,3,4,5,6), new Hand(2,3,4,5,6), Category.LARGESTRAIGHT),
+				
+				new Round(0x0f,0x0f,new Hand(1,5,5,5,5), new Hand(1,5,5,5,5), new Hand(5,5,5,5,5), Category.FIVES),
+				new Round(0x0f,0x0f,new Hand(1,4,4,4,4), new Hand(2,4,4,4,4), new Hand(4,4,4,4,4), Category.FOURS),
+				new Round(0x0f,0x0f,new Hand(2,3,3,3,3), new Hand(2,3,3,3,3), new Hand(3,3,3,3,3), Category.THREES),
+				new Round(0x0f,0x0f,new Hand(1,2,2,2,2), new Hand(1,2,2,2,2), new Hand(2,2,2,2,2), Category.TWOS),
+				new Round(0x1f,0x1f,new Hand(1,1,1,1,1), new Hand(1,1,1,1,1), new Hand(1,1,1,1,1), Category.ONES),
+				
+				new Round(0x1f,0x1f,new Hand(1,2,3,4,5), new Hand(1,2,3,4,5), new Hand(1,2,3,4,5), Category.SMALLSTRAIGHT),
+				new Round(0x03,0x03,new Hand(1,1,1,6,6), new Hand(1,1,2,6,6), new Hand(1,2,3,6,6), Category.PAIR),
+				new Round(0x03,0x07,new Hand(1,1,1,6,6), new Hand(1,1,6,6,6), new Hand(1,1,6,6,6), Category.THREEOFAKIND),
+				new Round(0x1f,0x1f,new Hand(1,5,5,6,6), new Hand(1,5,5,6,6), new Hand(1,5,5,6,6), Category.TWOPAIR),
+				new Round(0x03,0x0f,new Hand(1,5,5,6,6), new Hand(1,5,5,6,6), new Hand(1,6,6,6,6), Category.FOUROFAKIND),
+				/* Last round always suggest ONES, since the choice should be obvious */
+				new Round(0x07,0x07,new Hand(1,1,6,6,6), new Hand(1,1,6,6,6), new Hand(6,6,6,6,6), Category.ONES)
+		);	
+		
+		assertRounds(rounds);
+		
+	}
+	
+	public void assertRounds(List<Round> rounds) {
+		int sum = 0;
+		sc = new ScoreCard();
+		for (Round r: rounds) {
+			sum += assertRound(r);
+		}
+		System.out.printf("Total score: %d\n", sum);
+	}
+	
+	private int assertRound(Round r) {
+		assertEquals(r.toString(), r.mask1, db.suggestRoll(r.h1, sc, 1));
+		assertEquals(r.toString(), r.mask2, db.suggestRoll(r.h2, sc, 2));
+		assertEquals(r.toString(), r.expectedMarking, Category.values[db.suggestMarking(r.h3, sc)]);
+		int score = sc.value(r.h3, r.expectedMarking);
+		sc.fillScore(r.expectedMarking, score);
+		return score;
+	}
+	
+	private class Round {
+		 
+		public Round(int i, int j, Hand h1, Hand h2, Hand h3,
+				Category expectedMarking) {
+			this.mask1 = i;
+			this.mask2 = j;
+			this.h1 = h1;
+			this.h2 = h2;
+			this.h3 = h3;
+			this.expectedMarking = expectedMarking;
+		}
+		int mask1, mask2;
+		Hand h1, h2, h3;
+		Category expectedMarking;
+		@Override
+		public String toString() {
+			return "Round [expectedMarking=" + expectedMarking + ", h1=" + h1
+					+ ", h2=" + h2 + ", h3=" + h3 + ", mask1=" + mask1
+					+ ", mask2=" + mask2 + "]";
+		}
+		
 	}
 }

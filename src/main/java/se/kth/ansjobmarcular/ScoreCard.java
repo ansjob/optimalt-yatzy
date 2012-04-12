@@ -203,8 +203,6 @@ public class ScoreCard {
 	 * @return The numeric score of the hand, if filled in as the given type.
 	 */
 	public int value(Hand hand, Category sp) {
-		if (isFilled(sp))
-			throw new RuntimeException("Tried to score a category that was previously filled in. (" + sp + ")");
 		switch (sp) {
 		case ONES:
 		case TWOS:
