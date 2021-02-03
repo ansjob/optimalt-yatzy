@@ -27,7 +27,7 @@ public class FileActionsStorage implements ActionsStorage {
 
 
 	public FileActionsStorage() {
-		File file = new File("/tmp/actions");
+		File file = new File("D:\\Yatzy\\optimalt-yatzy-jbb\\output\\output.txt");
 		buffer = new HashMap<Long, Byte>(BUFSIZE);
 		try {
 			fp = new RandomAccessFile(file, "rw");

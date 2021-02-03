@@ -26,11 +26,11 @@ public class Bot {
      */
     public static void main(String[] args) {
 
-        int numGames = 20000;
+        int numGames = 200;
 
         Bot bot = new Bot();
         for (int i = 0; i < numGames; i++) {
-            bot.playGame();
+            bot.playGame_julio();
         }
         double avg = 0;
         for (Integer res : results) {
@@ -39,6 +39,73 @@ public class Bot {
         avg /= results.size();
         System.out.printf("Played %d games, at average score %.2f\n", numGames, avg);
     }
+    
+    //Only Two round game example to show the bot behavior when 1st hand is LARGESTRAIGHT and 2nd is SHORTSTRAIGHT
+    private void playGame_julio() {
+        ScoreCard sc = new ScoreCard();
+        int totalScore = 0;
+        
+        /* 
+         *  ********** FIRST ROUND **************************************************** 
+         */
+        dice[0] = (byte) 2;
+        dice[1] = (byte) 3;
+        dice[2] = (byte) 4;
+        dice[3] = (byte) 5;
+        dice[4] = (byte) 6;
+        Hand initialHand = new Hand (dice[0], dice[1], dice[2], dice[3], dice[4]);
+        for (int roll = 1; roll <= 2; roll++) {
+            int holdMask = db.suggestRoll(initialHand, sc, roll);
+            randomize(dice, holdMask);
+        }
+        
+        /*
+         * Now we need to to the marking
+         */
+        Hand h = new Hand(dice[0], dice[1], dice[2], dice[3], dice[4]);
+
+        int cat = db.suggestMarking(h, sc);
+        Category c = Category.fromInt(cat);
+        totalScore += sc.value(h, c);
+        sc.fillScore(c);
+        if (c.isUpper()) {
+            int value = ScoreCard.count(h, cat+1) * (cat+1);
+            sc.addScore(value);
+        }
+        
+        
+        /* 
+         *  ********** SECOND ROUND **************************************************** 
+         */
+        dice[0] = (byte) 1;
+        dice[1] = (byte) 1;
+        dice[2] = (byte) 2;
+        dice[3] = (byte) 3;
+        dice[4] = (byte) 4;
+        Hand initialHand2 = new Hand ((byte) 1, (byte) 1, (byte) 2, (byte) 3, (byte) 4);
+        for (int roll = 1; roll <= 2; roll++) {
+            int holdMask = db.suggestRoll(initialHand2, sc, roll);
+            // holdMask should be 31 as we already hit LARGESTRAIGHT the previous round 
+            //     and in this 2nd round we have just hit SMALLSTRAIGHT
+            randomize(dice, holdMask);
+        }
+        
+        /*
+         * Now we need to to the marking
+         */
+        h = new Hand(dice[0], dice[1], dice[2], dice[3], dice[4]);
+
+        cat = db.suggestMarking(h, sc);
+        c = Category.fromInt(cat);
+        totalScore += sc.value(h, c);
+        sc.fillScore(c);
+        if (c.isUpper()) {
+            int value = ScoreCard.count(h, cat+1) * (cat+1);
+            sc.addScore(value);
+        }
+        
+    }
+
 
     private void playGame() {
         ScoreCard sc = new ScoreCard();
