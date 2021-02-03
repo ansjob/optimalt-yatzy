@@ -15,7 +15,7 @@ import java.io.PrintWriter;
  */
 public class MemoryActionsStorage implements ActionsStorage {
 
-	private static final String FILENAME = "/tmp/actions";
+	private static final String FILENAME = "D:\\Yatzy\\optimalt-yatzy-jbb\\output\\output.txt";
 	private byte[][][] storage = new byte[3][Hand.MAX_INDEX + 1][ScoreCard.MAX_INDEX + 1];
 
 	@Override

@@ -276,7 +276,7 @@ public class ScoreCard {
 			break;
 		}
 		if (upperTotal < 63 && score + upperTotal >= 63)
-			score += 50;
+			score += 35;
 		return score;
 	}
 
@@ -341,7 +341,7 @@ public class ScoreCard {
 		}
 		if (count != 2 && count != 3)
 			return 0;
-		val += count * prev;
+		val = 25;
 
 		return val;
 	}
@@ -356,15 +356,57 @@ public class ScoreCard {
 	 * @return Score.
 	 */
 	private int scoreStraight(Hand hand, Category type) {
-		if (type == Category.SMALLSTRAIGHT
-				&& Arrays.equals(hand.getDice(), new byte[] { 1, 2, 3, 4, 5 }))
-			return 15;
-		if (type == Category.LARGESTRAIGHT
-				&& Arrays.equals(hand.getDice(), new byte[] { 2, 3, 4, 5, 6 }))
-			return 20;
+		if (type == Category.SMALLSTRAIGHT && thereIsSmallStraight(hand))
+			return 30;
+		if ((type == Category.LARGESTRAIGHT && Arrays.equals(hand.getDice(), new byte[] { 1, 2, 3, 4, 5 }))
+			||
+			(type == Category.LARGESTRAIGHT && Arrays.equals(hand.getDice(), new byte[] { 2, 3, 4, 5, 6 }))	)
+			return 40;
 		return 0;
 	}
 
+	private boolean thereIsSmallStraight(Hand hand) {
+		boolean result = false;
+		if (Arrays.equals(hand.getDice(), new byte[] { 1, 2, 3, 4, 5 })
+			||
+		    Arrays.equals(hand.getDice(), new byte[] { 1, 2, 3, 4, 6 })	
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 1, 1, 2, 3, 4 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 1, 2, 2, 3, 4 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 1, 2, 3, 3, 4 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 1, 2, 3, 4, 4 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 2, 2, 3, 4, 5 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 2, 3, 3, 4, 5 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 2, 3, 4, 4, 5 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 2, 3, 4, 5, 5 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 2, 3, 4, 5, 6 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 1, 3, 4, 5, 6 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 2, 3, 4, 5, 6 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 3, 3, 4, 5, 6 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 3, 4, 4, 5, 6 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 3, 4, 5, 5, 6 })
+		    ||
+		    Arrays.equals(hand.getDice(), new byte[] { 3, 4, 5, 6, 6 }) ) {
+		
+			result = true;
+		}
+		return result;
+		
+	}
+	
 	/**
 	 * Calculate the 3-, 4-of-a-kind score of a hand.
 	 *
@@ -376,6 +418,26 @@ public class ScoreCard {
 	 * @return Score.
 	 */
 	private short scoreKind(Hand hand, int no) {
+		short sum = 0;
+		if (scoreKind_original(hand,no) > 0) {
+			for (int i : hand.getDice())
+				sum += i;
+		}
+		return sum;
+	}
+	
+	
+	/**
+	 * Calculate the 3-, 4-of-a-kind score of a hand.
+	 *
+	 * @param hand
+	 *            Hand to be evaluated.
+	 * @param no
+	 *            Number of dice that should be the same (3 for THREEOFAKIND,
+	 *            etc).
+	 * @return Score.
+	 */
+	private short scoreKind_original(Hand hand, int no) {
 		short val = 0;
 		byte count = 1;
 		byte prev = 0;
@@ -403,10 +465,33 @@ public class ScoreCard {
 	 * @return Score.
 	 */
 	private short scorePair(Hand hand, int no) {
+		short sum = 0;
+		if (scorePair_original(hand,no) > 0) {
+			for (int i : hand.getDice())
+				sum += i;
+		}
+		return sum;
+	}
+	
+	
+	
+	/**
+	 * Calculates the (two-)pair score of a hand.
+	 *
+	 * @param hand
+	 *            Hand to be evaluated.
+	 * @param no
+	 *            Number of pairs to calculate for.
+	 * @return Score.
+	 */
+	private short scorePair_original(Hand hand, int no) {
 		byte max = 0;
 		byte prev = 0;
 		byte used = 0;
 		short score = 0;
+		
+		int pairsFound = 0;
+		int numberOfPairsToSearch = no;
 
 		for (; no > 0; no--) {
 			for (byte i : hand.getDice()) {
@@ -415,9 +500,15 @@ public class ScoreCard {
 				}
 				prev = i;
 			}
+			if (max != 0) {
+				pairsFound += 1;
+			}
 			used = max;
 			score += max * 2;
 			max = 0;
+		}
+		if (pairsFound < numberOfPairsToSearch) {
+			score = 0;
 		}
 		return score;
 	}
